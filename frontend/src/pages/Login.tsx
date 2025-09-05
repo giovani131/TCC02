@@ -1,9 +1,49 @@
 import Link from "next/link";
 import { FC, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Login: FC = () => {
   const [userType, setUserType] = useState<"cliente" | "restaurante">("cliente");
+  
+  //INTEGRACAO
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    email: "",
+    senha: "",
+  });
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:5500/api/loginUsuario", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Salva o token no navegador
+        localStorage.setItem("token", data.token);
+
+        // Redireciona para /home
+        router.push("/Home");
+      } else {
+        alert(data.message || "Erro ao fazer login");
+      }
+    } catch (error) {
+      console.error("Erro no login:", error);
+      alert("Erro de conexão com o servidor");
+    }
+  };
+
+  //FRONT
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-purple-50">
       <div className="flex flex-col items-center mb-6">
@@ -12,20 +52,29 @@ const Login: FC = () => {
         <p className="text-gray-600">Entre na sua conta para continuar</p>
       </div>
 
-      <div className="bg-white shadow-lg rounded-xl p-8 w-96">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white shadow-lg rounded-xl p-8 w-96"
+      >
         <div className="flex mb-6 rounded-lg overflow-hidden border border-gray-300">
           <button
+            type="button"
             onClick={() => setUserType("cliente")}
             className={`flex-1 p-2 transition-colors duration-300 ${
-              userType === "cliente" ? "bg-purple-500 text-white" : "bg-white text-gray-700"
+              userType === "cliente"
+                ? "bg-purple-500 text-white"
+                : "bg-white text-gray-700"
             }`}
           >
             Cliente
           </button>
           <button
+            type="button"
             onClick={() => setUserType("restaurante")}
             className={`flex-1 p-2 transition-colors duration-300 ${
-              userType === "restaurante" ? "bg-purple-500 text-white" : "bg-white text-gray-700"
+              userType === "restaurante"
+                ? "bg-purple-500 text-white"
+                : "bg-white text-gray-700"
             }`}
           >
             Restaurante
@@ -41,12 +90,19 @@ const Login: FC = () => {
 
         <input
           type="email"
+          name="email"
           placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
           className="w-full p-3 border rounded-lg mb-4"
         />
+
         <input
           type="password"
+          name="senha"
           placeholder="Senha"
+          value={formData.senha}
+          onChange={handleChange}
           className="w-full p-3 border rounded-lg mb-4"
         />
 
@@ -54,7 +110,10 @@ const Login: FC = () => {
           Esqueci minha senha
         </Link>
 
-        <button className="w-full bg-purple-500 text-white p-3 rounded-lg mt-4">
+        <button
+          type="submit"
+          className="w-full bg-purple-500 text-white p-3 rounded-lg mt-4"
+        >
           Entrar
         </button>
 
@@ -64,7 +123,7 @@ const Login: FC = () => {
             Cadastre-se aqui
           </Link>
         </p>
-      </div>
+      </form>
     </div>
   );
 };

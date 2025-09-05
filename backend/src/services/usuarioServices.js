@@ -82,5 +82,18 @@ async function loginUsuario(email, senha) {
   return { usuario, token };
 }
 
-module.exports = { criarUsuario, editarUsuario , deletarUsuario, loginUsuario};
+async function getUsuarioPorId(id) {
+  const query = `
+    SELECT id, nome, email, telefone
+    FROM usuarios
+    WHERE id = $1
+  `;
+  const values = [id];
+
+  const result = await pool.query(query, values);
+  if (result.rows.length === 0) return null;
+  return result.rows[0];
+}
+
+module.exports = { criarUsuario, editarUsuario , deletarUsuario, loginUsuario, getUsuarioPorId};
 

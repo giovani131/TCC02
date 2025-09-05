@@ -85,7 +85,23 @@ async function loginUsuario(req, res) {
   }
 }
 
+async function getUsuarioLogado(req, res) {
+  try {
+    const userId = req.user.id; // do middleware
+    const usuario = await usuarioServices.getUsuarioPorId(userId);
+
+    if (!usuario) {
+      return res.status(404).json({ message: "Usuário não encontrado" });
+    }
+
+    res.json(usuario);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erro ao buscar usuário" });
+  }
+}
 
 
 
-module.exports = { cadastrarUsuario, editarUsuario, deletarUsuario, loginUsuario};
+
+module.exports = { cadastrarUsuario, editarUsuario, deletarUsuario, loginUsuario, getUsuarioLogado};

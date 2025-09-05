@@ -2,11 +2,49 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function Cadastro() {
+  
+  //DADOS
   const [userType, setUserType] = useState<"cliente" | "restaurante">("cliente");
-
   const comidas = ["Italiana", "Japonesa", "Brasileira", "Mexicana", "Chinesa", "Outros"];
   const diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 
+  // INTEGRAÇAO
+  const [cliente, setCliente] = useState({
+    nome: "",
+    telefone: "",
+    email: "",
+    senha: "",
+  });
+
+  const handleChangeCliente = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCliente({ ...cliente, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmitCliente = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("http://localhost:5500/api/cadastrarUsuario", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...cliente, tipo: "cliente" }), // manda os dados
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Cadastro realizado com sucesso!");
+        console.log(data);
+      } else {
+        alert(data.message || "Erro ao cadastrar");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro de conexão com servidor");
+    }
+  };
+  
+  // FRONT
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-purple-50 p-4">
       {/* Cabeçalho */}
@@ -44,33 +82,48 @@ export default function Cadastro() {
         </div>
 
         {/* Conteúdo do formulário */}
-        <div className="transition-all duration-500">
+       <div className="transition-all duration-500">
           {userType === "cliente" ? (
-            <div className="flex flex-col gap-4">
+            <form onSubmit={handleSubmitCliente} className="flex flex-col gap-4">
               <input
                 type="text"
+                name="nome"
                 placeholder="Nome Completo"
                 className="w-full p-3 border rounded-lg"
+                value={cliente.nome}
+                onChange={handleChangeCliente}
               />
               <input
                 type="text"
+                name="telefone"
                 placeholder="Telefone"
                 className="w-full p-3 border rounded-lg"
+                value={cliente.telefone}
+                onChange={handleChangeCliente}
               />
               <input
                 type="email"
+                name="email"
                 placeholder="Email"
                 className="w-full p-3 border rounded-lg"
+                value={cliente.email}
+                onChange={handleChangeCliente}
               />
               <input
                 type="password"
+                name="senha"
                 placeholder="Senha"
                 className="w-full p-3 border rounded-lg"
+                value={cliente.senha}
+                onChange={handleChangeCliente}
               />
-              <button className="w-full bg-purple-500 text-white p-3 rounded-lg mt-2">
+              <button
+                type="submit"
+                className="w-full bg-purple-500 text-white p-3 rounded-lg mt-2"
+              >
                 Criar Conta
               </button>
-            </div>
+            </form>
           ) : (
             <div className="flex flex-col gap-4">
               {/* Nome do Restaurante */}
