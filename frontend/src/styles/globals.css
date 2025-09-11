@@ -1,3 +1,18 @@
 @import "tailwindcss";
 
 
+/*ANIMACAO ICONE LOGIN*/
+@keyframes pulse-smooth {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+.animate-pulse-smooth {
+  animation: pulse-smooth 2s infinite ease-in-out;
+}
