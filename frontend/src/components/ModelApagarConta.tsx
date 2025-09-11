@@ -45,13 +45,20 @@ export default function ModalApagarConta({
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-gray-300"
+            className="px-4 py-2 rounded-lg border border-gray-300
+                      transition transform duration-200 ease-out
+                      hover:bg-gray-100 hover:scale-105 hover:shadow-sm
+                      active:scale-95"
           >
             Cancelar
           </button>
+
           <button
             onClick={handleConfirm}
-            className="px-4 py-2 rounded-lg bg-red-600 text-white"
+            className="px-4 py-2 rounded-lg bg-red-600 text-white
+                      transition transform duration-200 ease-out
+                      hover:bg-red-700 hover:scale-105 hover:shadow-md
+                      active:scale-95"
           >
             Confirmar
           </button>

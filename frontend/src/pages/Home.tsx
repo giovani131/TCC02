@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ModalEditarUsuario from "@/components/ModalEditarUsuario";
 import ModalApagarConta from "@/components/ModelApagarConta";
+import { User, Edit2, Trash2 } from "lucide-react";
 
 type Usuario = {
   nome: string;
@@ -109,11 +110,9 @@ export default function Home() {
         <div>
           <h2 className="text-lg font-bold mb-4">Meus Dados</h2>
           <div className="bg-white p-4 rounded-xl shadow-sm border mb-6">
-            <img
-              src="https://i.pravatar.cc/100"
-              alt="Perfil"
-              className="w-16 h-16 rounded-full mx-auto"
-            />
+            <div className="w-16 h-16 mx-auto rounded-full bg-gray-200 flex items-center justify-center border-2 border-gray-400">
+              <User className="w-8 h-8 text-gray-600" />
+            </div>
             <h3 className="text-center mt-2 font-bold">
               {usuario?.nome || "Carregando..."}
             </h3>
@@ -123,21 +122,34 @@ export default function Home() {
           </div>
 
           <button
-            className="w-full border rounded-lg p-2 flex items-center gap-2 mb-2"
+            className="w-full border rounded-lg p-2 flex items-center gap-2 mb-4
+                      transition transform duration-200 ease-out
+                      hover:bg-purple-100 hover:scale-105 hover:shadow-md
+                      active:scale-95"
             onClick={() => setIsModalEditOpen(true)}
           >
-            ✏️ Editar Dados
+            <Edit2 className="w-5 h-5 text-purple-600" />
+            Editar Dados
           </button>
+
           <button
-            className="w-full border rounded-lg p-2 flex items-center gap-2 text-red-600 mb-2"
+            className="w-full border rounded-lg p-2 flex items-center gap-2 text-red-600 mb-2
+                      transition transform duration-200 ease-out
+                      hover:bg-red-100 hover:scale-105 hover:shadow-md
+                      active:scale-95"
             onClick={() => setIsModalDeleteOpen(true)}
           >
-            🗑 Apagar Conta
+            <Trash2 className="w-5 h-5" />
+            Apagar Conta
           </button>
+
         </div>
 
         <button
-          className="w-full bg-purple-500 text-white p-3 rounded-lg"
+          className="w-full bg-purple-500 text-white p-3 rounded-lg
+                    transition transform duration-200 ease-out
+                    hover:bg-purple-600 hover:scale-105 hover:shadow-lg
+                    active:scale-95"
           onClick={() => {
             localStorage.removeItem("token");
             router.push("/");
