@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { Store, Edit2, Clock, UtensilsCrossed, ListChecks, Settings, BookOpen } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Cardapio from "@/components/cardapio/Cardapio";
+import Horarios from "@/components/Horarios";
 
 type Estabelecimento = {
   nome_restaurante: string;
@@ -144,9 +145,7 @@ export default function HomeEstabelecimento() {
                 <p className="text-gray-600">✅ Aqui ficam as reservas aceitas...</p>
               )}
               {activeTab === "cardapio" && <Cardapio/>}
-              {activeTab === "horarios" && (
-                <p className="text-gray-600">⏰ Aqui você define os dias e horários de abertura...</p>
-              )}
+              {activeTab === "horarios" && <Horarios/>}
               {activeTab === "mesas" && (
                 <p className="text-gray-600">🍽️ Aqui você controla mesas e cadeiras...</p>
               )}
