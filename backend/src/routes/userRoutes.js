@@ -14,6 +14,8 @@ router.get("/usuarioDados", autenticarToken, usuarioController.getUsuarioLogado)
 //Estabelecimento
 router.post("/cadastrarEstabelecimento", estabelecimentoController.cadastrarEstabelecimento);
 router.post("/loginEstabelecimento", estabelecimentoController.loginEstabelecimento)
+router.patch("/editarEstabelecimento", autenticarToken, estabelecimentoController.editarEstabelecimento)
+router.delete("/deletarEstabelecimento", autenticarToken, estabelecimentoController.deletarEstabelecimento)
 router.get("/estabelecimentoDados", autenticarToken, estabelecimentoController.getEstabelecimentoLogado)
 
 module.exports = router;

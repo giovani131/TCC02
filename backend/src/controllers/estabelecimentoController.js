@@ -31,6 +31,46 @@ async function cadastrarEstabelecimento(req, res) {
   }
 }
 
+async function editarEstabelecimento(req, res) {
+  try {
+    const id = req.user.id; 
+    const { dados } = req.body;
+
+    if (!dados) {
+      return res.status(400).json({ message: 'Preencha todos os campos obrigatórios!' });
+    }
+
+    const estabelecimentoAtualizado = await estabelecimentoServices.editarEstabelecimento(id, { dados });
+
+    res.status(200).json({
+      message: 'Estabelecimento atualizado com sucesso!',
+      user: {
+        dados : estabelecimentoAtualizado.dados
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+async function deletarEstabelecimento(req, res) {
+  try {
+    const id = req.user.id;
+
+    const estabelecimentoDeletado = await estabelecimentoServices.deletarEstabelecimento(id);
+
+    res.status(200).json({
+      message: 'Estabelecimento deletado com sucesso!',
+      user: {
+        id: usuarioDeletado.id,
+        dados: usuarioDeletado.dados
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
 async function loginEstabelecimento(req, res) {
   try {
     const { email, senha } = req.body;
@@ -69,4 +109,4 @@ async function getEstabelecimentoLogado(req, res) {
   }
 }
 
-module.exports = {cadastrarEstabelecimento, loginEstabelecimento, getEstabelecimentoLogado}
+module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoLogado}

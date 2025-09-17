@@ -47,6 +47,48 @@ async function criarEstabelecimento({ nome_restaurante,cpf_cnpj_responsavel,tele
   return new Estabelecimento(res.rows[0]);
 }
 
+async function editarEstabelecimento(id, { dados }) {
+  
+  let senhaCriptografada = senha;
+  if (senha) {
+    senhaCriptografada = await bcrypt.hash(senha, 10);
+  }
+
+  const updateQuery = `
+    UPDATE estabelecimentos
+    SET dados = $1
+    WHERE id = $2
+    RETURNING *;
+  `;
+  const values = [dados, id];
+
+  const res = await pool.query(updateQuery, values);
+
+  if (res.rows.length === 0) {
+    throw new Error('Estabelecimento não encontrado');
+  }
+
+  return new Estabelecimento(res.rows[0]);
+}
+
+async function deletarEstabelecimento(id) {
+  const deleteQuery = `
+    DELETE FROM estabelecimentos
+    WHERE id = $1
+    RETURNING *;
+  `;
+
+  const res = await pool.query(deleteQuery, [id]);
+
+  if (res.rows.length === 0) {
+    throw new Error('Estabelecimento não encontrado');
+  }
+
+  return res.rows[0];
+}
+
+
+
 async function loginEstabelecimento(email, senha) {
   const res = await pool.query('SELECT * FROM estabelecimentos WHERE email_responsavel = $1', [email]);
   const estabelecimento = res.rows[0];
@@ -71,4 +113,4 @@ async function getEstabelecimentoPorId(id) {
   return result.rows[0];
 }
 
-module.exports = {criarEstabelecimento, loginEstabelecimento, getEstabelecimentoPorId}
+module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoPorId}
