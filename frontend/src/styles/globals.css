@@ -9,10 +9,12 @@
   }
   50% {
     transform: scale(1.1);
-    opacity: 0.9;
+    opacity: 0.85;
   }
 }
 
 .animate-pulse-smooth {
   animation: pulse-smooth 2s infinite ease-in-out;
 }
+
+
