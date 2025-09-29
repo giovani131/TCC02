@@ -106,50 +106,55 @@ export default function Home() {
   return (
     <div className="flex min-h-screen bg-purple-50">
       {/* Sidebar */}
-      <aside className="w-1/4 bg-white p-6 shadow-lg flex flex-col justify-between">
-        <div>
-          <h2 className="text-lg font-bold mb-4">Meus Dados</h2>
-          <div className="bg-white p-4 rounded-xl shadow-sm border mb-6">
-            <div className="w-16 h-16 mx-auto rounded-full bg-gray-200 flex items-center justify-center border-2 border-gray-400">
-              <User className="w-8 h-8 text-gray-600" />
+      <aside className="w-[22%] bg-white p-6 shadow-xl flex flex-col justify-between">
+        <div className="space-y-6">
+          <h2 className="text-lg font-bold text-gray-800 text-center">Minha Conta</h2>
+
+          {/* Card do Usuário */}
+          <div className="bg-gray-50 p-6 rounded-2xl shadow-md text-center">
+            <div className="w-20 h-20 mx-auto rounded-full bg-purple-100 flex items-center justify-center border-4 border-purple-500">
+              <User className="w-10 h-10 text-purple-600" />
             </div>
-            <h3 className="text-center mt-2 font-bold">
+            <h3 className="mt-3 font-bold text-gray-800 text-lg">
               {usuario?.nome || "Carregando..."}
             </h3>
-            <p className="text-center text-purple-600 text-sm">Ativo</p>
-            <p className="text-sm text-gray-600 mt-4">{usuario?.email}</p>
-            <p className="text-sm text-gray-600">{usuario?.telefone}</p>
+            <p className="text-sm flex items-center justify-center gap-1 mt-1">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span className="text-gray-600">Ativo</span>
+            </p>
+            <p className="text-sm text-gray-500 mt-4">{usuario?.email}</p>
+            <p className="text-sm text-gray-500">{usuario?.telefone}</p>
           </div>
 
-          <button
-            className="w-full border rounded-lg p-2 flex items-center gap-2 mb-4
-                      transition transform duration-200 ease-out
-                      hover:bg-purple-100 hover:scale-105 hover:shadow-md
-                      active:scale-95"
-            onClick={() => setIsModalEditOpen(true)}
-          >
-            <Edit2 className="w-5 h-5 text-purple-600" />
-            Editar Dados
-          </button>
+          {/* Botões com animação */}
+          <div className="flex flex-col items-center space-y-3">
+            <button
+              className="w-4/5 max-w-[220px] border-2 border-purple-500 text-purple-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
+                        transition transform duration-200 ease-out
+                        hover:bg-purple-50 hover:scale-105 hover:shadow-md active:scale-95"
+              onClick={() => setIsModalEditOpen(true)}
+            >
+              <Edit2 className="w-5 h-5" />
+              Editar Dados
+            </button>
 
-          <button
-            className="w-full border rounded-lg p-2 flex items-center gap-2 text-red-600 mb-2
-                      transition transform duration-200 ease-out
-                      hover:bg-red-100 hover:scale-105 hover:shadow-md
-                      active:scale-95"
-            onClick={() => setIsModalDeleteOpen(true)}
-          >
-            <Trash2 className="w-5 h-5" />
-            Apagar Conta
-          </button>
-
+            <button
+              className="w-4/5 max-w-[220px] border-2 border-red-500 text-red-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
+                        transition transform duration-200 ease-out
+                        hover:bg-red-50 hover:scale-105 hover:shadow-md active:scale-95"
+              onClick={() => setIsModalDeleteOpen(true)}
+            >
+              <Trash2 className="w-5 h-5" />
+              Apagar Conta
+            </button>
+          </div>
         </div>
 
+        {/* Logout */}
         <button
-          className="w-full bg-purple-500 text-white p-3 rounded-lg
+          className="w-full bg-purple-600 text-white py-3 rounded-lg font-medium
                     transition transform duration-200 ease-out
-                    hover:bg-purple-600 hover:scale-105 hover:shadow-lg
-                    active:scale-95"
+                    hover:bg-purple-700 hover:scale-105 hover:shadow-lg active:scale-95"
           onClick={() => {
             localStorage.removeItem("token");
             router.push("/");
@@ -159,11 +164,14 @@ export default function Home() {
         </button>
       </aside>
 
+
+
+
       {/* Main content */}
       <main className="flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-6">📍 Mapa de restaurantes</h1>
-        <div className="bg-white rounded-xl shadow-lg p-6 h-full">
-          <div className="h-[500px] bg-gray-100 rounded-lg flex items-center justify-center">
+        <h1 className="text-2xl font-bold mb-4">📍 Mapa de restaurantes</h1>
+        <div className="bg-white rounded-xl shadow-lg p-6 h-195">
+          <div className="h-full bg-gray-100 rounded-lg flex items-center justify-center">
             <p className="text-gray-500">[Mapa interativo aqui]</p>
           </div>
         </div>

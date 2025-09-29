@@ -2,28 +2,28 @@ const estabelecimentoServices = require("../services/estabelecimentoServices")
 
 async function cadastrarEstabelecimento(req, res) {
   try {
-    const { nome_restaurante, cpf_cnpj_responsavel, telefone_responsavel, 
-        email_responsavel, senha, endereco_rua, endereco_bairro, endereco_num } = req.body;
+    const { nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, 
+        email_responsavel, senha} = req.body;
 
-    if (!nome_restaurante || !cpf_cnpj_responsavel || !telefone_responsavel 
-        || !email_responsavel || !senha || !endereco_rua || !endereco_bairro || !endereco_num) {
+    if (!nome_restaurante || !nome_responsavel || !cpf_responsavel || !cnpj || !telefone_responsavel 
+        || !email_responsavel || !senha ) {
       return res.status(400).json({ message: "Preencha todos os campos!" });
     }
 
-    const estabelecimento = await estabelecimentoServices.criarEstabelecimento({ nome_restaurante, cpf_cnpj_responsavel, telefone_responsavel, 
-        email_responsavel, senha, endereco_rua, endereco_bairro, endereco_num });
+    const estabelecimento = await estabelecimentoServices.criarEstabelecimento({ nome_restaurante, nome_responsavel, cpf_responsavel,
+    cnpj, telefone_responsavel, email_responsavel, senha});
 
     res.status(201).json({
       message: "Estabelecimento cadastrado com sucesso!",
       user: {
         id_estabelecimento: estabelecimento.id_estabelecimento,
-        nome_resposavel: estabelecimento.nome_restaurante,
-        cpf_cnpj_responsavel: estabelecimento.cpf_cnpj_responsavel,
+        nome_restaurante: estabelecimento.nome_restaurante,
+        nome_responsavel: estabelecimento.nome_responsavel,
+        cpf_responsavel: estabelecimento.cpf_cnpj_responsavel,
+        cnpj: estabelecimento.cnpj,
         telefone_responsavel: estabelecimento.telefone_responsavel,
         email_responsavel: estabelecimento.email_responsavel,
-        endereco_rua: estabelecimento.endereco_rua,
-        endereco_bairro: estabelecimento.endereco_bairro,
-        endereco_num: estabelecimento.endereco_num
+        senha: estabelecimento.senha
       }
     });
   } catch (err) {
@@ -34,18 +34,23 @@ async function cadastrarEstabelecimento(req, res) {
 async function editarEstabelecimento(req, res) {
   try {
     const id = req.user.id; 
-    const { dados } = req.body;
+    const { nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, senha } = req.body;
 
-    if (!dados) {
+    if (!nome_restaurante || !nome_responsavel || !cpf_responsavel || !cnpj || !telefone_responsavel || !email_responsavel || !senha) {
       return res.status(400).json({ message: 'Preencha todos os campos obrigatórios!' });
     }
 
-    const estabelecimentoAtualizado = await estabelecimentoServices.editarEstabelecimento(id, { dados });
+    const estabelecimentoAtualizado = await estabelecimentoServices.editarEstabelecimento(id, { nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, senha});
 
     res.status(200).json({
       message: 'Estabelecimento atualizado com sucesso!',
       user: {
-        dados : estabelecimentoAtualizado.dados
+        nome_restaurante: estabelecimentoAtualizado.nome_restaurante,
+        nome_responsavel: estabelecimentoAtualizado.nome_responsavel,
+        cpf_responsavel: estabelecimentoAtualizado.cpf_responsavel,
+        cnpj: estabelecimentoAtualizado.cnpj,
+        telefone_responsavel: estabelecimentoAtualizado.telefone_responsavel,
+        email_responsavel: estabelecimentoAtualizado.email_responsavel
       }
     });
   } catch (err) {
@@ -62,8 +67,10 @@ async function deletarEstabelecimento(req, res) {
     res.status(200).json({
       message: 'Estabelecimento deletado com sucesso!',
       user: {
-        id: usuarioDeletado.id,
-        dados: usuarioDeletado.dados
+        id_estabelecimento: estabelecimentoDeletado.id_estabelecimento,
+        nome_restaurante: estabelecimentoDeletado.nome_restaurante,
+        nome_responsavel: estabelecimentoDeletado.nome_responsavel,
+        email_responsavel: estabelecimentoDeletado.email_responsavel
       }
     });
   } catch (err) {
@@ -80,12 +87,13 @@ async function loginEstabelecimento(req, res) {
     res.status(200).json({
       message: 'Login realizado com sucesso!',
       user: { id_estabelecimento: estabelecimento.id_estabelecimento,
-        nome_resposavel: estabelecimento.nome_restaurante,
+        nome_restaurante: estabelecimento.nome_restaurante,
+        nome_responsavel: estabelecimento.nome_responsavel,
+        cpf_responsavel: estabelecimento.cpf_responsavel,
+        cnpj: estabelecimento.cnpj,
         telefone_responsavel: estabelecimento.telefone_responsavel,
         email_responsavel: estabelecimento.email_responsavel,
-        endereco_rua: estabelecimento.endereco_rua,
-        endereco_bairro: estabelecimento.endereco_bairro,
-        endereco_num: estabelecimento.endereco_num },
+        },
       token
     });
   } catch (err) {

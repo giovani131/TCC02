@@ -1,13 +1,12 @@
 class Estabelecimento {
-    constructor({nome_restaurante,cpf_cnpj_responsavel,telefone_responsavel,email_responsavel,senha,endereco_rua,endereco_bairro,endereco_num}){
+    constructor({nome_restaurante,nome_responsavel,cpf_responsavel,cnpj,telefone_responsavel,email_responsavel,senha}){
         this.nome_restaurante = nome_restaurante;
-        this.cpf_cnpj_responsavel = cpf_cnpj_responsavel;
+        this.nome_responsavel = nome_responsavel;
+        this.cpf_responsavel = cpf_responsavel;
+        this.cnpj = cnpj;
         this.telefone_responsavel = telefone_responsavel;
         this.email_responsavel = email_responsavel;
         this.senha = senha;
-        this.endereco_rua = endereco_rua;
-        this.endereco_bairro = endereco_bairro;
-        this.endereco_num = endereco_num;
     }
 }
 

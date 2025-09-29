@@ -3,51 +3,60 @@ const Estabelecimento = require('../models/Estabelecimento');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-async function criarEstabelecimento({ nome_restaurante,cpf_cnpj_responsavel,telefone_responsavel,email_responsavel,senha,endereco_rua,endereco_bairro,endereco_num }) {
+async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_responsavel,cnpj,telefone_responsavel,email_responsavel,senha }) {
 
-  const checkQuery = 'SELECT * FROM estabelecimentos WHERE cpf_cnpj_responsavel = $1';
-  const checkRes = await pool.query(checkQuery, [cpf_cnpj_responsavel]);
+  const checkQuery = `
+    SELECT * FROM estabelecimentos 
+    WHERE email_responsavel = $1 OR cpf_responsavel = $2
+  `;
+  const checkRes = await pool.query(checkQuery, [email_responsavel, cpf_responsavel]);
+
   if (checkRes.rows.length > 0) {
-    throw new Error('Estabelecimento já cadastrado com esse CPF/CNPJ!');
+    const existing = checkRes.rows[0];
+    if (existing.email_responsavel === email_responsavel) {
+      throw new Error('Estabelecimento já cadastrado com esse Email!');
+    }
+    if (existing.cpf_responsavel === cpf_responsavel) {
+      throw new Error('Estabelecimento já cadastrado com esse CPF!');
+    }
   }
+
 
   const senhaCriptografada = await bcrypt.hash(senha, 10);
 
   const novoEstabelecimento = new Estabelecimento({
     nome_restaurante,
-    cpf_cnpj_responsavel,
+    nome_responsavel,
+    cpf_responsavel,
+    cnpj,
     telefone_responsavel,
     email_responsavel,
-    senha: senhaCriptografada,
-    endereco_rua,
-    endereco_bairro,
-    endereco_num
+    senha: senhaCriptografada
   });
 
   const insertQuery = `
     INSERT INTO estabelecimentos(
     nome_restaurante,
-    cpf_cnpj_responsavel,
+    nome_responsavel,
+    cpf_responsavel,
+    cnpj,
     telefone_responsavel,
     email_responsavel,
-    senha,
-    endereco_rua,
-    endereco_bairro,
-    endereco_num
+    senha
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `;
-  const values = [novoEstabelecimento.nome_restaurante, novoEstabelecimento.cpf_cnpj_responsavel, 
-                novoEstabelecimento.telefone_responsavel, novoEstabelecimento.email_responsavel, novoEstabelecimento.senha,
-                novoEstabelecimento.endereco_rua,novoEstabelecimento.endereco_bairro,novoEstabelecimento.endereco_num];
+  const values = [novoEstabelecimento.nome_restaurante,novoEstabelecimento.nome_responsavel, novoEstabelecimento.cpf_responsavel,
+                novoEstabelecimento.cnpj, novoEstabelecimento.telefone_responsavel, novoEstabelecimento.email_responsavel, 
+                novoEstabelecimento.senha];
   
   const res = await pool.query(insertQuery, values);
 
   return new Estabelecimento(res.rows[0]);
 }
 
-async function editarEstabelecimento(id, { dados }) {
+async function editarEstabelecimento(id, { nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, senha }) {
   
   let senhaCriptografada = senha;
   if (senha) {
@@ -56,11 +65,11 @@ async function editarEstabelecimento(id, { dados }) {
 
   const updateQuery = `
     UPDATE estabelecimentos
-    SET dados = $1
-    WHERE id = $2
+    SET nome_restaurante = $1, nome_responsavel = $2, cpf_responsavel = $3, cnpj = $4 , telefone_responsavel = $5, email_responsavel = $6, senha = $7
+    WHERE id_estabelecimento = $8
     RETURNING *;
   `;
-  const values = [dados, id];
+  const values = [nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, senhaCriptografada, id];
 
   const res = await pool.query(updateQuery, values);
 
@@ -74,7 +83,7 @@ async function editarEstabelecimento(id, { dados }) {
 async function deletarEstabelecimento(id) {
   const deleteQuery = `
     DELETE FROM estabelecimentos
-    WHERE id = $1
+    WHERE id_estabelecimento = $1
     RETURNING *;
   `;
 
@@ -102,7 +111,7 @@ async function loginEstabelecimento(email, senha) {
 
 async function getEstabelecimentoPorId(id) {
   const query = `
-    SELECT id_estabelecimento, nome_restaurante, cpf_cnpj_responsavel, telefone_responsavel, email_responsavel, endereco_rua, endereco_bairro, endereco_num
+    SELECT nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel
     FROM estabelecimentos
     WHERE id_estabelecimento = $1
   `;

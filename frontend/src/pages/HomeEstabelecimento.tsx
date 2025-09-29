@@ -1,25 +1,30 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Store, Edit2, Clock, UtensilsCrossed, ListChecks, Settings, BookOpen } from "lucide-react";
+import { Store, User, IdCard, Building2, Mail, Phone,Edit2, Clock, UtensilsCrossed, ListChecks, Settings, BookOpen, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Cardapio from "@/components/cardapio/Cardapio";
 import Horarios from "@/components/Horarios";
+import ModalApagarConta from "@/components/ModelApagarConta";
+import ModalEditarEstabelecimento from "@/components/ModalEditarEstabelecimento";
+
 
 type Estabelecimento = {
   nome_restaurante: string;
-  cpf_cnpj_responsavel: string;
+  nome_responsavel: string;
+  cpf_responsavel: string;
+  cnpj: string;
   telefone_responsavel: string;
   email_responsavel: string;
-  endereco_rua: string;
-  endereco_bairro: string;
-  endereco_num: string;
-  criado_em: string;
 };
 
 export default function HomeEstabelecimento() {
   const router = useRouter();
   const [estabelecimento, setEstabelecimento] = useState<Estabelecimento | null>(null);
   const [activeTab, setActiveTab] = useState("reservasPendentes");
+  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+  const [isModalEditOpen, setIsModalEditOpen] = useState(false);
+
+
 
   // Buscar dados do restaurante
   useEffect(() => {
@@ -45,53 +50,164 @@ export default function HomeEstabelecimento() {
     fetchEstabelecimento();
   }, [router]);
 
+  // Atualizar estabelecimento
+  const handleUpdateEstabelecimento = async (formData: {
+    nome_restaurante: string;
+    nome_responsavel: string;
+    cpf_responsavel: string;
+    cnpj: string;
+    telefone_responsavel: string;
+    email_responsavel: string;
+    senha: string;
+  }) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch("http://localhost:5500/api/editarEstabelecimento", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      console.log(data)
+      if (res.ok) {
+        // Atualiza o estado do estabelecimento no front
+        setEstabelecimento({
+          nome_restaurante: data.user.nome_restaurante,
+          nome_responsavel: data.user.nome_responsavel,
+          cpf_responsavel: data.user.cpf_responsavel,
+          cnpj: data.user.cnpj,
+          telefone_responsavel: data.user.telefone_responsavel,
+          email_responsavel: data.user.email_responsavel,
+        });
+        alert("Dados do estabelecimento atualizados com sucesso!");
+        setIsModalEditOpen(false);
+      } else {
+        alert(data.message || "Erro ao atualizar os dados do estabelecimento");
+      }
+    } catch (err) {
+      console.error(err);
+      alert(err);
+    }
+  };
+
+
+
+  // Apagar estabelecimento
+  const handleDeleteEstabelecimento = async (senha: string) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch("http://localhost:5500/api/deletarEstabelecimento", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ senha }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Conta apagada com sucesso!");
+        localStorage.removeItem("token");
+        router.push("/");
+      } else {
+        alert(data.message || "Erro ao apagar conta");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro no servidor.");
+    }
+  }; 
+
   return (
     <div className="flex min-h-screen bg-purple-50">
       {/* Sidebar */}
-      <aside className="w-1/4 bg-white p-6 shadow-lg flex flex-col justify-between">
-        <div>
-          <h2 className="text-lg font-bold mb-4">Meu Estabelecimento</h2>
-          <div className="bg-white p-4 rounded-xl shadow-sm border mb-6">
-            <div className="w-16 h-16 mx-auto rounded-full bg-gray-200 flex items-center justify-center border-2 border-gray-400">
-              <Store className="w-8 h-8 text-gray-600" />
+      <aside className="w-[22%] bg-white p-6 shadow-xl flex flex-col justify-between">
+        <div className="space-y-6">
+          <h2 className="text-lg font-bold text-gray-800 text-center">Meu Estabelecimento</h2>
+
+          {/* Card do Estabelecimento */}
+          <div className="bg-gray-50 p-6 rounded-2xl shadow-md text-center">
+            {/* Avatar */}
+            <div className="w-20 h-20 mx-auto rounded-full bg-purple-100 flex items-center justify-center border-4 border-purple-500">
+              <Store className="w-10 h-10 text-purple-600" />
             </div>
-            <h3 className="text-center mt-2 font-bold">
+
+            {/* Nome */}
+            <h3 className="mt-3 font-bold text-gray-800 text-lg">
               {estabelecimento?.nome_restaurante || "Carregando..."}
             </h3>
-            <p className="text-sm text-gray-600 mt-2">{estabelecimento?.email_responsavel}</p>
-            <p className="text-sm text-gray-600">{estabelecimento?.telefone_responsavel}</p>
-            <p className="text-sm text-gray-600 mt-2">
-              {estabelecimento?.endereco_rua}, {estabelecimento?.endereco_num} -{" "}
-              {estabelecimento?.endereco_bairro}
+
+            {/* Status */}
+            <p className="text-sm flex items-center justify-center gap-1 mt-1">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span className="text-gray-600">Ativo</span>
             </p>
+
+            {/* Informações detalhadas */}
+            <div className="mt-4 space-y-3 text-left">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <User className="w-4 h-4 text-purple-500" />
+                <span className="font-medium">Responsável:</span>
+                <span>{estabelecimento?.nome_responsavel}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <IdCard className="w-4 h-4 text-purple-500" />
+                <span className="font-medium">CPF:</span>
+                <span>{estabelecimento?.cpf_responsavel}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Building2 className="w-4 h-4 text-purple-500" />
+                <span className="font-medium">CNPJ:</span>
+                <span>{estabelecimento?.cnpj}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Mail className="w-4 h-4 text-purple-500" />
+                <span className="font-medium">Email:</span>
+                <span>{estabelecimento?.email_responsavel}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Phone className="w-4 h-4 text-purple-500" />
+                <span className="font-medium">Telefone:</span>
+                <span>{estabelecimento?.telefone_responsavel}</span>
+              </div>
+            </div>
           </div>
 
-          {/* Botões da sidebar */}
-          <button
-            className="w-full border rounded-lg p-2 flex items-center gap-2 mb-3
-                      transition transform duration-200 ease-out
-                      hover:bg-purple-100 hover:scale-105 hover:shadow-md
-                      active:scale-95"
-          >
-            <Edit2 className="w-5 h-5 text-purple-600" />
-            Editar Dados
-          </button>
 
-          <button
-            className="w-full border rounded-lg p-2 flex items-center gap-2 mb-3
-                      transition transform duration-200 ease-out
-                      hover:bg-purple-100 hover:scale-105 hover:shadow-md
-                      active:scale-95"
-          >
-            🗑 Apagar Conta
-          </button>
+          {/* Botões com animação */}
+          <div className="flex flex-col items-center space-y-3">
+            <button
+              className="w-4/5 max-w-[220px] border-2 border-purple-500 text-purple-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
+                        transition transform duration-200 ease-out
+                        hover:bg-purple-50 hover:scale-105 hover:shadow-md active:scale-95"
+              onClick={() => setIsModalEditOpen(true)}
+            >
+              <Edit2 className="w-5 h-5" />
+              Editar Dados
+            </button>
+
+            <button
+              className="w-4/5 max-w-[220px] border-2 border-red-500 text-red-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
+                        transition transform duration-200 ease-out
+                        hover:bg-red-50 hover:scale-105 hover:shadow-md active:scale-95"
+              onClick={() => setIsModalDeleteOpen(true)}
+            >
+              <Trash2 className="w-5 h-5" />
+              Apagar Conta
+            </button>
+          </div>
         </div>
 
+        {/* Logout */}
         <button
-          className="w-full bg-purple-500 text-white p-3 rounded-lg
+          className="w-full bg-purple-600 text-white py-3 rounded-lg font-medium
                     transition transform duration-200 ease-out
-                    hover:bg-purple-600 hover:scale-105 hover:shadow-lg
-                    active:scale-95"
+                    hover:bg-purple-700 hover:scale-105 hover:shadow-lg active:scale-95"
           onClick={() => {
             localStorage.removeItem("token");
             router.push("/");
@@ -100,6 +216,7 @@ export default function HomeEstabelecimento() {
           Logout
         </button>
       </aside>
+
 
       {/* Main content */}
       <main className="flex-1 p-6">
@@ -153,6 +270,19 @@ export default function HomeEstabelecimento() {
           </AnimatePresence>
         </div>
       </main>
+
+      <ModalEditarEstabelecimento
+        isOpen={isModalEditOpen}
+        onClose={() => setIsModalEditOpen(false)}
+        estabelecimento={estabelecimento}
+        onSave={handleUpdateEstabelecimento}
+      />      
+
+      <ModalApagarConta
+        isOpen={isModalDeleteOpen}
+        onClose={() => setIsModalDeleteOpen(false)}
+        onConfirm={handleDeleteEstabelecimento}
+      />
     </div>
   );
 }
