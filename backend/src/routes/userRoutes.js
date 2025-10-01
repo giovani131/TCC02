@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const usuarioController = require("../controllers/usuarioController");
 const estabelecimentoController = require("../controllers/estabelecimentoController")
+const cardapioController = require("../controllers/cardapioController")
+const sessaoController = require("../controllers/sessaoController")
 const autenticarToken = require("../middleware/autenticarToken")
 
 //Usuario
@@ -17,5 +19,13 @@ router.post("/loginEstabelecimento", estabelecimentoController.loginEstabelecime
 router.patch("/editarEstabelecimento", autenticarToken, estabelecimentoController.editarEstabelecimento)
 router.delete("/deletarEstabelecimento", autenticarToken, estabelecimentoController.deletarEstabelecimento)
 router.get("/estabelecimentoDados", autenticarToken, estabelecimentoController.getEstabelecimentoLogado)
+
+//Cardapio
+router.post("/cadastrarCardapio", autenticarToken, cardapioController.criarCardapio)
+router.get("/listarCardapiosPorId", autenticarToken, cardapioController.listarCardapiosPorEstabelecimento)
+
+//Sessao
+router.post("/cadastrarSessao", sessaoController.criarSessao)
+router.get("/listarSessaoPorCardapio", sessaoController.listarSessaoPorCardapio)
 
 module.exports = router;

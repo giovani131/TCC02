@@ -4,43 +4,44 @@ type ModalAdicionarItemProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (dados: {
-    tipo: string;
     nome: string;
     descricao: string;
     valor: string;
+    imagem?: File | null;
   }) => void;
 };
 
 export default function ModalAdicionarItem({ isOpen, onClose, onSave }: ModalAdicionarItemProps) {
-  const [tipo, setTipo] = useState("entrada");
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
+  const [imagem, setImagem] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSalvar = () => {
-    onSave({ tipo, nome, descricao, valor });
+    onSave({ nome, descricao, valor, imagem });
     onClose();
+  };
+
+  const handleImagemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImagem(file);
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setPreview(null);
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 bg-opacity-20 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-96 shadow-lg">
         <h2 className="text-xl font-semibold mb-4">Adicionar Item</h2>
-
-        {/* Select Tipo do prato */}
-        <label className="block mb-2 font-medium">Tipo do prato</label>
-        <select
-          value={tipo}
-          onChange={(e) => setTipo(e.target.value)}
-          className="w-full mb-4 border rounded px-3 py-2"
-        >
-          <option value="entrada">Entrada</option>
-          <option value="principais">Prato Principal</option>
-          <option value="sobremesas">Sobremesa</option>
-          <option value="bebidas">Bebida</option>
-        </select>
 
         {/* Nome do prato */}
         <label className="block mb-2 font-medium">Nome</label>
@@ -68,6 +69,27 @@ export default function ModalAdicionarItem({ isOpen, onClose, onSave }: ModalAdi
           onChange={(e) => setValor(e.target.value)}
           className="w-full mb-4 border rounded px-3 py-2"
         />
+
+        {/* Imagem */}
+        <label className="block mb-2 font-medium">Imagem do prato</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImagemChange}
+          className="w-full mb-4"
+        />
+
+        {/* Preview da imagem */}
+        {preview && (
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 mb-1">Pré-visualização:</p>
+            <img
+              src={preview}
+              alt="Preview"
+              className="w-full h-40 object-cover rounded border"
+            />
+          </div>
+        )}
 
         {/* Botões */}
         <div className="flex justify-end gap-3">

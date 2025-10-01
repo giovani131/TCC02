@@ -8,6 +8,7 @@ import ModalApagarConta from "@/components/ModelApagarConta";
 import ModalEditarEstabelecimento from "@/components/ModalEditarEstabelecimento";
 
 
+
 type Estabelecimento = {
   nome_restaurante: string;
   nome_responsavel: string;
@@ -23,6 +24,7 @@ export default function HomeEstabelecimento() {
   const [activeTab, setActiveTab] = useState("reservasPendentes");
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
+
 
 
 
@@ -122,6 +124,7 @@ export default function HomeEstabelecimento() {
       alert("Erro no servidor.");
     }
   }; 
+
 
   return (
     <div className="flex min-h-screen bg-purple-50">
