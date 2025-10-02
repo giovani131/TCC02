@@ -26,6 +26,6 @@ router.get("/listarCardapiosPorId", autenticarToken, cardapioController.listarCa
 
 //Sessao
 router.post("/cadastrarSessao", sessaoController.criarSessao)
-router.get("/listarSessaoPorCardapio", sessaoController.listarSessaoPorCardapio)
+router.get("/listarSessoesPorCardapio/:cardapio_id", autenticarToken,sessaoController.listarSessaoPorCardapio)
 
 module.exports = router;

@@ -25,14 +25,16 @@ async function criarSessao(req, res) {
 
 async function listarSessaoPorCardapio(req, res) {
   try {
-    const  cardapio_id  = req.body;
+    const  { cardapio_id }  = req.params; 
 
-    const sessoes = await sessaoServices.listarSessaoPorCardapio(cardapio_id);
+    const sessoes = await sessaoServices.listarSessaoPorCardapio(Number(cardapio_id));
 
     res.status(200).json(sessoes);
   } catch (err) {
+    console.error("Erro ao listar sessões:", err);
     res.status(500).json({ message: "Erro ao listar as sessões", error: err.message });
   }
 }
+
 
 module.exports = { criarSessao , listarSessaoPorCardapio };

@@ -3,7 +3,7 @@ const Sessao = require('../models/Sessao');
 
 async function criarSessao({ nome_sessao, ordem, cardapio_id }) {
   
-  const checkQuery = 'SELECT * FROM cardapio)sessao WHERE nome_sessao = $1 AND cardapio_id = $2';
+  const checkQuery = 'SELECT * FROM cardapio_sessao WHERE nome_sessao = $1 AND cardapio_id = $2';
   const checkRes = await pool.query(checkQuery, [nome_sessao, cardapio_id]);
   if (checkRes.rows.length > 0) {
     throw new Error('Já existe uma sessão com esse nome neste cardápio!');
