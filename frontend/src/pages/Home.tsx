@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import ModalEditarUsuario from "@/components/ModalEditarUsuario";
 import ModalApagarConta from "@/components/ModelApagarConta";
 import { User, Edit2, Trash2 } from "lucide-react";
+import Mapa from "@/components/Mapa";
 
 type Usuario = {
   nome: string;
@@ -108,7 +109,9 @@ export default function Home() {
       {/* Sidebar */}
       <aside className="w-[22%] bg-white p-6 shadow-xl flex flex-col justify-between">
         <div className="space-y-6">
-          <h2 className="text-lg font-bold text-gray-800 text-center">Minha Conta</h2>
+          <h2 className="text-lg font-bold text-gray-800 text-center">
+            Minha Conta
+          </h2>
 
           {/* Card do Usuário */}
           <div className="bg-gray-50 p-6 rounded-2xl shadow-md text-center">
@@ -164,15 +167,12 @@ export default function Home() {
         </button>
       </aside>
 
-
-
-
       {/* Main content */}
       <main className="flex-1 p-6">
         <h1 className="text-2xl font-bold mb-4">📍 Mapa de restaurantes</h1>
         <div className="bg-white rounded-xl shadow-lg p-6 h-195">
           <div className="h-full bg-gray-100 rounded-lg flex items-center justify-center">
-            <p className="text-gray-500">[Mapa interativo aqui]</p>
+            <Mapa />
           </div>
         </div>
       </main>
