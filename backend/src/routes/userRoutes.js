@@ -4,6 +4,7 @@ const usuarioController = require("../controllers/usuarioController");
 const estabelecimentoController = require("../controllers/estabelecimentoController")
 const cardapioController = require("../controllers/cardapioController")
 const sessaoController = require("../controllers/sessaoController")
+const itemController = require("../controllers/itemController")
 const autenticarToken = require("../middleware/autenticarToken")
 
 //Usuario
@@ -27,5 +28,9 @@ router.get("/listarCardapiosPorId", autenticarToken, cardapioController.listarCa
 //Sessao
 router.post("/cadastrarSessao", sessaoController.criarSessao)
 router.get("/listarSessoesPorCardapio/:cardapio_id", autenticarToken,sessaoController.listarSessaoPorCardapio)
+
+//Item
+router.post("/cadastrarItem", itemController.criarItem)
+router.get("/listarItensPorSessao/:cardapio_sessao_id", itemController.listarItemPorSessao)
 
 module.exports = router;
