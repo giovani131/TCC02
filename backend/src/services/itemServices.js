@@ -45,6 +45,40 @@ async function criarItem({ nome_item, descricao_item, preco_item, imagem, visive
   return new Item(res.rows[0]);
 }
 
+async function editarItem(nome_item, descricao_item, preco_item, visivel, imagem, id) {
+
+  const updateQuery = `
+    UPDATE item_sessao
+    SET nome_item = $1, descricao_item = $2, preco_item = $3, visivel = $4, imagem = $5
+    WHERE id = $6
+    RETURNING *;
+  `;
+  const values = [nome_item, descricao_item, preco_item, visivel, imagem, id];
+
+  const res = await pool.query(updateQuery, values);
+
+  if (res.rows.length === 0) {
+    throw new Error('Item não encontrado');
+  }
+
+  return new Item(res.rows[0]);
+}
+
+async function deletarItem(id) {
+  console.log('entrou')
+  console.log(id)
+  const deleteQuery = `
+    DELETE FROM item_sessao
+    WHERE id = $1
+    RETURNING *;
+  `;
+
+  const res = await pool.query(deleteQuery, [Number(id)]);
+  if (res.rows.length === 0) {
+    throw new Error('Item não encontrado');
+  }
+  return res.rows[0];
+}
 
 async function listarItemPorSessao(cardapio_sessao_id) {
   const query = `SELECT * FROM item_sessao WHERE cardapio_sessao_id = $1`;
@@ -52,4 +86,4 @@ async function listarItemPorSessao(cardapio_sessao_id) {
   return res.rows.map(row => new Item(row));
 }
 
-module.exports = { criarItem, listarItemPorSessao }
+module.exports = { criarItem, editarItem, deletarItem, listarItemPorSessao }

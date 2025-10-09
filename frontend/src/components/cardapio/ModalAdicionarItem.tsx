@@ -29,8 +29,20 @@ export default function ModalAdicionarItem({ isOpen, onClose, onSave }: ModalAdi
     }
 
     onSave({ nome_item, descricao_item, preco_item: Number(preco_item), imagem, visivel });
+    setNomeItem("");
+    setDescricaoItem("");
+    setPrecoItem(0);
+    setPreview(null);
     onClose();
   };
+
+  const handleCancelar =()=>{
+    setNomeItem("");
+    setDescricaoItem("");
+    setPrecoItem(0);
+    setPreview(null);
+    onClose();
+  }
 
   const handleImagemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -114,7 +126,7 @@ export default function ModalAdicionarItem({ isOpen, onClose, onSave }: ModalAdi
         <div className="flex justify-end gap-3">
           <button
             className="px-4 py-2 border rounded hover:bg-gray-100"
-            onClick={onClose}
+            onClick={handleCancelar}
           >
             Cancelar
           </button>

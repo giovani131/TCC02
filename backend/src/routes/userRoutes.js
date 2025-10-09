@@ -32,5 +32,7 @@ router.get("/listarSessoesPorCardapio/:cardapio_id", autenticarToken,sessaoContr
 //Item
 router.post("/cadastrarItem", itemController.criarItem)
 router.get("/listarItensPorSessao/:cardapio_sessao_id", itemController.listarItemPorSessao)
+router.patch("/editarItem", itemController.editarItem)
+router.delete("/deletarItem", itemController.deletarItem)
 
 module.exports = router;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import ModalApagarItem from "./ModalApagarItem";
-import ModalEditarItem from "./ModalAdicionarItem";
+import ModalApagarItem from "./ModalDeletarItem";
+import ModalEditarItem from "./ModalEditarItem";
 import ModalAdicionarItem from "./ModalAdicionarItem";
 import ModalCriarCardapio from "./ModalCriarCardapio";
 import ModalCriarSessao from "./ModalCriarSessao";
@@ -14,6 +14,7 @@ export default function Cardapio() {
   const [sessaoAtiva, setSessaoAtiva] = useState<number | null>(null);
   const [itemSelecionado, setItemSelecionado] = useState<number | null>(null);
   const [itens, setItens] = useState<{id: number; nome_item: string; descricao_item: string; preco_item: number; imagem: string, visivel: boolean}[]>([])
+  const [itemEmEdicao, setItemEmEdicao] = useState<{id: number;nome_item: string;descricao_item: string;preco_item: number;visivel: boolean;imagem: string;} | null>(null);
 
 
   const [modalApagarOpen, setModalApagarOpen] = useState(false);
@@ -22,7 +23,11 @@ export default function Cardapio() {
   const [modalCriarCardapioOpen, setModalCriarCardapioOpen] = useState(false);
   const [modalCriarSessaoOpen, setModalCriarSessaoOpen] = useState(false);
 
-  // Buscar cardápios no backend ao montar
+  const [reloadCardapios, setReloadCardapios] = useState(0);
+  const [reloadSessoes, setReloadSessoes] = useState(0);
+  const [reloadItens, setReloadItens] = useState(0);
+
+
   useEffect(() => {
     const fetchCardapios = async () => {
       const token = localStorage.getItem("token");
@@ -53,7 +58,7 @@ export default function Cardapio() {
     };
 
     fetchCardapios();
-  }, []);
+  }, [reloadCardapios]);
 
   useEffect(() => {
     if (!cardapioSelecionado) return;
@@ -75,7 +80,9 @@ export default function Cardapio() {
 
         const data = await res.json();
         setSessoes(data);
-        if (data.length > 0){ 
+        if (data.length == 0){ 
+          setSessaoAtiva(null);
+        }else{
           setSessaoAtiva(data[0].id);
         }
       } catch (err) {
@@ -83,10 +90,10 @@ export default function Cardapio() {
       }
     };
     fetchSessoes();
-  }, [cardapioSelecionado]);
+  }, [cardapioSelecionado, reloadSessoes]);
 
   useEffect(() => {
-    if (!sessaoAtiva) return;
+    if (!sessaoAtiva){ setItens([]); return;}
 
     const fetchSessoes = async () => {
 
@@ -101,18 +108,14 @@ export default function Cardapio() {
         if (!res.ok) throw new Error("Erro ao buscar itens");
 
         const data = await res.json();
-        console.log(data)
         setItens(data);
       } catch (err) {
         console.error("Erro ao carregar itens:", err);
       }
     };
     fetchSessoes();
-  }, [sessaoAtiva]);
+  }, [sessaoAtiva, reloadItens]);
 
-
-
-  // Função para criar cardápio
   const handleCreateCardapio = async (formData: { nome_cardapio: string; descricao_cardapio: string; status: number }) => {
     const token = localStorage.getItem("token");
     try {
@@ -128,9 +131,8 @@ export default function Cardapio() {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Cardápio criado com sucesso!");
         setModalCriarCardapioOpen(false);
-        setListaCardapios((prev) => [...prev, data.cardapio]);
+        setReloadCardapios((prev) => prev + 1);
         setCardapioSelecionado(data.cardapio.id);
       } else {
         alert(data.message || "Erro ao cadastrar cardápio");
@@ -159,17 +161,18 @@ export default function Cardapio() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.message || "Erro ao criar sessão");
+      if (res.ok) {
+        setReloadSessoes((prev) => prev + 1);
+      } else {
+        alert(data.message || "Erro ao cadastrar Sessão");
       }
-      setSessoes((prev) => [...prev, data.sessao]);
     } catch (err) {
       console.error("ERRO:",err);
       alert("Erro ao criar sessão");
     }
   };
 
-    const handleCreateItem = async (dados: { nome_item: string, descricao_item: string, preco_item: number, imagem: File, visivel: boolean }) => {
+  const handleCreateItem = async (dados: { nome_item: string, descricao_item: string, preco_item: number, imagem: File, visivel: boolean }) => {
       try {
       const token = localStorage.getItem("token");
 
@@ -200,8 +203,11 @@ export default function Cardapio() {
       });
 
       const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || "Erro ao criar item");
+
+      if (res.ok) {
+        setReloadItens((prev) => prev + 1);
+      } else {
+        alert(data.message || "Erro ao cadastrar Item");
       }
     } catch (err) {
       console.error("ERRO:",err);
@@ -209,6 +215,71 @@ export default function Cardapio() {
     }
   };
 
+  const handleEditItem = async (dados: { nome_item: string, descricao_item: string, preco_item: number, imagem: File, visivel: boolean }) => {
+      try {
+
+      const fileToBase64 = (file: File) =>
+        new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+      const imagemBase64 = await fileToBase64(dados.imagem);
+
+      const res = await fetch("http://localhost:5500/api/editarItem", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome_item: dados.nome_item,
+          descricao_item: dados.descricao_item,
+          preco_item: dados.preco_item,
+          imagem: imagemBase64,
+          visivel: dados.visivel,
+          id: itemSelecionado
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setReloadItens((prev) => prev + 1);
+        setItemEmEdicao(null)
+      } else {
+        alert(data.message || "Erro ao editar item");
+      }
+
+    } catch (err) {
+      console.error("ERRO:",err);
+      alert("Erro ao editar item 2");
+    }
+  };
+
+  const handleDeleteItem = async()=>{
+    console.log('entrou')
+    try {
+      const res = await fetch("http://localhost:5500/api/deletarItem", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: itemSelecionado
+          }),
+        }); 
+      
+      const data = await res.json();
+      if(res.ok){
+        setReloadItens((prev)=> prev + 1);
+      }
+    } catch (err) {
+      console.error("ERRO:",err);
+      alert("Erro ao deletar item");
+    }
+  }
 
   return (
     <div>
@@ -272,57 +343,67 @@ export default function Cardapio() {
           </button>
         </div>
 
-      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full max-h-[470px] overflow-y-auto">
-        {itens.map((item) => (
-          <li
-            key={item.id}
-            className="border rounded-lg p-3 hover:shadow flex flex-col justify-between w-80"
-          >
-            <div className="flex flex-col items-center gap-3">
-              {item.imagem && (
-              <img
-                src={item.imagem} 
-                alt="Imagem do item"
-                className="w-24 h-24 rounded-md object-cover"
-              />
-              )}
+        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full max-h-[470px] overflow-y-auto">
+          {itens.length > 0 ? (
+            itens.map((item) => (
+              <li
+                key={item.id}
+                className="border rounded-lg p-3 hover:shadow flex flex-col justify-between w-80"
+              >
+                <div className="flex flex-col items-center gap-3">
+                  {item.imagem && (
+                    <img
+                      src={item.imagem}
+                      alt="Imagem do item"
+                      className="w-24 h-24 rounded-md object-cover"
+                    />
+                  )}
 
-              <span className="font-semibold text-center">{item.nome_item}</span>
-              <span className="text-sm text-gray-600 text-center">{item.descricao_item}</span>
-            </div>
+                  <span className="font-semibold text-center">{item.nome_item}</span>
+                  <span className="text-sm text-gray-600 text-center">
+                    {item.descricao_item}
+                  </span>
+                </div>
 
-            <div className="flex justify-between items-center mt-2">
-              <span className="font-bold text-purple-600">
-                R$ {Number(item.preco_item).toFixed(2)}
-              </span>
+                <div className="flex justify-between items-center mt-2">
+                  <span className="font-bold text-purple-600">
+                    R$ {Number(item.preco_item).toFixed(2)}
+                  </span>
 
-              <div className="flex gap-2">
-                <button
-                  className="text-blue-500 hover:text-blue-700"
-                  onClick={() => {
-                    setItemSelecionado(item.id);
-                    setModalEditarOpen(true);
-                  }}
-                  aria-label={`Editar ${item.nome_item}`}
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
+                  <div className="flex gap-2">
+                    <button
+                      className="text-blue-500 hover:text-blue-700"
+                      onClick={() => {
+                        setItemSelecionado(item.id);
+                        setItemEmEdicao(item);
+                        setModalEditarOpen(true);
+                      }}
+                      aria-label={`Editar ${item.nome_item}`}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
 
-                <button
-                  className="text-red-500 hover:text-red-700"
-                  onClick={() => {
-                    setItemSelecionado(item.id);
-                    setModalApagarOpen(true);
-                  }}
-                  aria-label={`Apagar ${item.nome_item}`}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+                    <button
+                      className="text-red-500 hover:text-red-700"
+                      onClick={() => {
+                        setItemSelecionado(item.id);
+                        setModalApagarOpen(true);
+                      }}
+                      aria-label={`Apagar ${item.nome_item}`}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </li>
+            ))
+          ) : (
+            <li className="col-span-full text-center text-gray-400 italic py-10">
+              Crie seu primeiro item
+            </li>
+          )}
+        </ul>
+
 
         <div className="mt-8 flex justify-center">
           <button
@@ -334,7 +415,6 @@ export default function Cardapio() {
         </div>
       </div>
 
-
       {/* Modais */}
       <ModalApagarItem
         isOpen={modalApagarOpen}
@@ -342,22 +422,19 @@ export default function Cardapio() {
           setModalApagarOpen(false);
           setItemSelecionado(null);
         }}
-        onConfirm={() => {
-          setModalApagarOpen(false);
-          setItemSelecionado(null);
-        }}
+        onConfirm={handleDeleteItem}
       />
       <ModalEditarItem
         isOpen={modalEditarOpen}
         onClose={() => {
           setModalEditarOpen(false);
           setItemSelecionado(null);
+          setItemEmEdicao(null);
         }}
-        onSave={() => {
-          setModalEditarOpen(false);
-          setItemSelecionado(null);
-        }}
+        itemEmEdição={itemEmEdicao}
+        onSave={handleEditItem}
       />
+
       <ModalAdicionarItem
         isOpen={modalAdicionarOpen}
         onClose={() => setModalAdicionarOpen(false)}
