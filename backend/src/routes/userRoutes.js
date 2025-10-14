@@ -20,6 +20,7 @@ router.post("/loginEstabelecimento", estabelecimentoController.loginEstabelecime
 router.patch("/editarEstabelecimento", autenticarToken, estabelecimentoController.editarEstabelecimento)
 router.delete("/deletarEstabelecimento", autenticarToken, estabelecimentoController.deletarEstabelecimento)
 router.get("/estabelecimentoDados", autenticarToken, estabelecimentoController.getEstabelecimentoLogado)
+router.post("/completarDados", autenticarToken, estabelecimentoController.completarDados)
 
 //Cardapio
 router.post("/cadastrarCardapio", autenticarToken, cardapioController.criarCardapio)

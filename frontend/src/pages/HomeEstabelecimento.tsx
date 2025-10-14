@@ -7,8 +7,6 @@ import Horarios from "@/components/Horarios";
 import ModalApagarConta from "@/components/ModelApagarConta";
 import ModalEditarEstabelecimento from "@/components/ModalEditarEstabelecimento";
 
-
-
 type Estabelecimento = {
   nome_restaurante: string;
   nome_responsavel: string;
@@ -20,12 +18,12 @@ type Estabelecimento = {
 
 export default function HomeEstabelecimento() {
   const router = useRouter();
+  
   const [estabelecimento, setEstabelecimento] = useState<Estabelecimento | null>(null);
   const [activeTab, setActiveTab] = useState("reservasPendentes");
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
-
-
+  const [dadosCompletos, setDadosCompletos] = useState<boolean | null>(null);
 
 
   // Buscar dados do restaurante
@@ -42,7 +40,10 @@ export default function HomeEstabelecimento() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        if (res.ok) setEstabelecimento(data);
+        if (res.ok){ 
+          setEstabelecimento(data);
+          setDadosCompletos(data.dados_completos);
+        }
         else router.push("/");
       } catch (err) {
         console.error(err);
@@ -127,9 +128,9 @@ export default function HomeEstabelecimento() {
 
 
   return (
-    <div className="flex min-h-screen bg-purple-50">
+    <div className="flex min-h-screen bg-purple-50 max-w-screen overflow-x-hidden overflow-y-auto">
       {/* Sidebar */}
-      <aside className="w-[22%] bg-white p-6 shadow-xl flex flex-col justify-between">
+      <aside className="w-[22%] bg-white p-6 shadow-xl flex flex-col justify-between ">
         <div className="space-y-6">
           <h2 className="text-lg font-bold text-gray-800 text-center">Meu Estabelecimento</h2>
 
@@ -203,6 +204,19 @@ export default function HomeEstabelecimento() {
               <Trash2 className="w-5 h-5" />
               Apagar Conta
             </button>
+
+            {dadosCompletos === false && (
+              <button
+                type="button"
+                className="w-4/5 max-w-[220px] border-2 border-yellow-500 text-yellow-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
+                          transition transform duration-200 ease-out
+                          hover:bg-yellow-50 hover:scale-105 hover:shadow-md active:scale-95"
+                onClick={() => router.push("/CompletarDados")}
+              >
+                Completar Cadastro
+              </button>
+            )}
+
           </div>
         </div>
 

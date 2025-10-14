@@ -9,7 +9,7 @@ import { Pencil, Trash2, PlusCircle } from "lucide-react";
 export default function Cardapio() {
   
   const [cardapioSelecionado, setCardapioSelecionado] = useState("");
-  const [listaCardapios, setListaCardapios] = useState<{ id: number; nome_cardapio: string }[]>([])
+  const [listaCardapios, setListaCardapios] = useState<{ id: number; nome_cardapio: string ; descricao_cardapio: string}[]>([])
   const [sessoes, setSessoes] = useState<{ id: number; nome_sessao: string }[]>([]);
   const [sessaoAtiva, setSessaoAtiva] = useState<number | null>(null);
   const [itemSelecionado, setItemSelecionado] = useState<number | null>(null);
@@ -48,6 +48,7 @@ export default function Cardapio() {
 
         const data = await res.json();
         setListaCardapios(data);
+        console.log(data)
         if (data.length > 0){
           const cardapioInicial = String(data[0].id)
           setCardapioSelecionado(cardapioInicial);
@@ -285,28 +286,34 @@ export default function Cardapio() {
     <div>
       <div>
         <div className="flex justify-between items-center mb-6">
-          <select
-            id="cardapioSelect"
-            value={cardapioSelecionado}
-            onChange={(e) => setCardapioSelecionado(e.target.value)}
-            className="border rounded-lg px-3 py-2"
-          >
-            {listaCardapios.length > 0 ? (
-              listaCardapios.map((cardapio) => (
-                <option key={cardapio.id} value={cardapio.id}>
-                  {cardapio.nome_cardapio}
+          <div className="flex items-center gap-5">
+            <select
+              id="cardapioSelect"
+              value={cardapioSelecionado}
+              onChange={(e) => setCardapioSelecionado(e.target.value)}
+              className="border rounded-lg px-3 py-2"
+            >
+              {listaCardapios.length > 0 ? (
+                listaCardapios.map((cardapio) => (
+                  <option key={cardapio.id} value={cardapio.id}>
+                    {cardapio.nome_cardapio}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>
+                  Nenhum cardápio encontrado
                 </option>
-              ))
-            ) : (
-              <option value="" disabled>
-                Nenhum cardápio encontrado
-              </option>
-            )}
-          </select>
+              )}
+            </select>
+
+            <p className="text-gray-600 text-sm italic">
+              {listaCardapios.find(c => String(c.id) === cardapioSelecionado)?.descricao_cardapio || ""}
+            </p>
+          </div>
 
           <button
             onClick={() => setModalCriarCardapioOpen(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-44"
+            className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
           >
             <PlusCircle className="w-4 h-4" />
             Criar cardápio
@@ -336,7 +343,7 @@ export default function Cardapio() {
 
           <button
             onClick={() => setModalCriarSessaoOpen(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-44"
+            className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
           >
             <PlusCircle className="w-4 h-4" />
             Criar sessão

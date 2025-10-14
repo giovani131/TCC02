@@ -2,6 +2,8 @@ const pool = require('../config/db');
 const Estabelecimento = require('../models/Estabelecimento');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const cloudinary = require('../config/cloudinary')
+
 
 async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_responsavel,cnpj,telefone_responsavel,email_responsavel,senha }) {
 
@@ -31,7 +33,8 @@ async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_resp
     cnpj,
     telefone_responsavel,
     email_responsavel,
-    senha: senhaCriptografada
+    senha: senhaCriptografada,
+    dados_completos: false
   });
 
   const insertQuery = `
@@ -42,14 +45,15 @@ async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_resp
     cnpj,
     telefone_responsavel,
     email_responsavel,
-    senha
+    senha,
+    dados_completos
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     RETURNING *;
   `;
   const values = [novoEstabelecimento.nome_restaurante,novoEstabelecimento.nome_responsavel, novoEstabelecimento.cpf_responsavel,
                 novoEstabelecimento.cnpj, novoEstabelecimento.telefone_responsavel, novoEstabelecimento.email_responsavel, 
-                novoEstabelecimento.senha];
+                novoEstabelecimento.senha, novoEstabelecimento.dados_completos];
   
   const res = await pool.query(insertQuery, values);
 
@@ -111,7 +115,7 @@ async function loginEstabelecimento(email, senha) {
 
 async function getEstabelecimentoPorId(id) {
   const query = `
-    SELECT nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel
+    SELECT nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, dados_completos
     FROM estabelecimentos
     WHERE id_estabelecimento = $1
   `;
@@ -122,4 +126,44 @@ async function getEstabelecimentoPorId(id) {
   return result.rows[0];
 }
 
-module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoPorId}
+async function completarDados( endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_rua, endereco_num, logo, telefone_restaurante,
+      especialidade, descricao_restaurante, meios_pagamento, tipos_servico, id) {
+
+  let urlLogo = null;
+    
+  if (logo && logo.startsWith("data:image")) {
+    const uploadRes = await cloudinary.uploader.upload(logo, {
+      folder: "logos_restaurante",
+    });
+    urlLogo = uploadRes.secure_url;
+  }  
+  
+  const insertQuery = `
+      UPDATE estabelecimentos
+      SET
+        endereco_cep = $1, 
+        endereco_estado = $2, 
+        endereco_cidade = $3, 
+        endereco_bairro = $4, 
+        endereco_rua = $5, 
+        endereco_num = $6, 
+        logo = $7, 
+        telefone_restaurante = $8,
+        especialidade = $9, 
+        descricao_restaurante = $10, 
+        meios_pagamento = $11, 
+        tipos_servico = $12,
+        dados_completos = $13
+      WHERE id_estabelecimento = $14 
+      RETURNING *;
+  `;
+  const values = [endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_rua, endereco_num, urlLogo, telefone_restaurante,
+      especialidade, descricao_restaurante, meios_pagamento, tipos_servico, true, id];
+  
+  const res = await pool.query(insertQuery, values);
+
+  return res.rows[0];
+}
+
+
+module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoPorId, completarDados}
