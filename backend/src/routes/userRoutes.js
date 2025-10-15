@@ -4,6 +4,7 @@ const usuarioController = require("../controllers/usuarioController");
 const estabelecimentoController = require("../controllers/estabelecimentoController")
 const cardapioController = require("../controllers/cardapioController")
 const sessaoController = require("../controllers/sessaoController")
+const itemController = require("../controllers/itemController")
 const autenticarToken = require("../middleware/autenticarToken")
 
 //Usuario
@@ -19,6 +20,7 @@ router.post("/loginEstabelecimento", estabelecimentoController.loginEstabelecime
 router.patch("/editarEstabelecimento", autenticarToken, estabelecimentoController.editarEstabelecimento)
 router.delete("/deletarEstabelecimento", autenticarToken, estabelecimentoController.deletarEstabelecimento)
 router.get("/estabelecimentoDados", autenticarToken, estabelecimentoController.getEstabelecimentoLogado)
+router.post("/completarDados", autenticarToken, estabelecimentoController.completarDados)
 
 //Cardapio
 router.post("/cadastrarCardapio", autenticarToken, cardapioController.criarCardapio)
@@ -26,6 +28,12 @@ router.get("/listarCardapiosPorId", autenticarToken, cardapioController.listarCa
 
 //Sessao
 router.post("/cadastrarSessao", sessaoController.criarSessao)
-router.get("/listarSessaoPorCardapio", sessaoController.listarSessaoPorCardapio)
+router.get("/listarSessoesPorCardapio/:cardapio_id", autenticarToken,sessaoController.listarSessaoPorCardapio)
+
+//Item
+router.post("/cadastrarItem", itemController.criarItem)
+router.get("/listarItensPorSessao/:cardapio_sessao_id", itemController.listarItemPorSessao)
+router.patch("/editarItem", itemController.editarItem)
+router.delete("/deletarItem", itemController.deletarItem)
 
 module.exports = router;

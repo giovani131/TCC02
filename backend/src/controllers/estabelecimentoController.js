@@ -16,14 +16,13 @@ async function cadastrarEstabelecimento(req, res) {
     res.status(201).json({
       message: "Estabelecimento cadastrado com sucesso!",
       user: {
-        id_estabelecimento: estabelecimento.id_estabelecimento,
         nome_restaurante: estabelecimento.nome_restaurante,
         nome_responsavel: estabelecimento.nome_responsavel,
-        cpf_responsavel: estabelecimento.cpf_cnpj_responsavel,
+        cpf_responsavel: estabelecimento.cpf_responsavel,
         cnpj: estabelecimento.cnpj,
         telefone_responsavel: estabelecimento.telefone_responsavel,
         email_responsavel: estabelecimento.email_responsavel,
-        senha: estabelecimento.senha
+        senha: estabelecimento.senha,
       }
     });
   } catch (err) {
@@ -117,4 +116,42 @@ async function getEstabelecimentoLogado(req, res) {
   }
 }
 
-module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoLogado}
+async function completarDados(req, res) {
+  try {
+    const {endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_rua, endereco_num, logo, telefone_restaurante,
+      especialidade, descricao_restaurante, meios_pagamento, tipos_servico
+    } = req.body;
+
+    const id = req.user.id;
+
+    if (!endereco_cep || !endereco_estado || !endereco_cidade || !endereco_bairro || !endereco_rua || !endereco_num || logo == null|| !telefone_restaurante ||
+      !especialidade || !descricao_restaurante || !meios_pagamento || !tipos_servico) {
+      return res.status(400).json({ message: "Preencha todos os campos!" });
+    }
+
+    const estabelecimentoCompleto = await estabelecimentoServices.completarDados( endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_rua, endereco_num, logo, telefone_restaurante,
+      especialidade, descricao_restaurante, meios_pagamento, tipos_servico, id);
+
+    res.status(201).json({
+      message: "Dados do estabelecimento completos!",
+      user: {
+        endereco_cep: estabelecimentoCompleto.endereco_cep,
+        endereco_estado: estabelecimentoCompleto.endereco_estado,
+        endereco_cidade: estabelecimentoCompleto.endereco_cidade,
+        endereco_bairro: estabelecimentoCompleto.endereco_bairro,
+        endereco_rua: estabelecimentoCompleto.endereco_rua,
+        endereco_num: estabelecimentoCompleto.endereco_num,
+        logo: estabelecimentoCompleto.logo,
+        telefone_restaurante: estabelecimentoCompleto.telefone_restaurante,
+        especialidade: estabelecimentoCompleto.especialidade,
+        descricao_restaurante: estabelecimentoCompleto.descricao_restaurante,
+        meios_pagamento: estabelecimentoCompleto.meios_pagamento,
+        tipos_servico: estabelecimentoCompleto.tipos_servico,
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoLogado, completarDados}
