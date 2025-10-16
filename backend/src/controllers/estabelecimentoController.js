@@ -102,7 +102,7 @@ async function loginEstabelecimento(req, res) {
 
 async function getEstabelecimentoLogado(req, res) {
   try {
-    const userId = req.user.id; // do middleware
+    const userId = req.user.id; 
     const estabelecimento = await estabelecimentoServices.getEstabelecimentoPorId(userId);
 
     if (!estabelecimento) {
@@ -154,4 +154,24 @@ async function completarDados(req, res) {
   }
 }
 
-module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoLogado, completarDados}
+async function alterarStatus(req, res) {
+  try {
+    const userId = req.user.id;
+    const {status} = req.body
+    console.log('entrou')
+    const statusAtualizado = await estabelecimentoServices.alterarStatus(status, userId);
+
+    if (!statusAtualizado) {
+      return res.status(404).json({ message: "Estabelecimento não encontrado" });
+    }
+
+    res.json(statusAtualizado);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erro ao buscar estabelecimento" });
+  }
+}
+
+
+module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoLogado, completarDados, alterarStatus}

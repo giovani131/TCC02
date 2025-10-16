@@ -34,7 +34,8 @@ async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_resp
     telefone_responsavel,
     email_responsavel,
     senha: senhaCriptografada,
-    dados_completos: false
+    dados_completos: false,
+    status: 3
   });
 
   const insertQuery = `
@@ -46,14 +47,15 @@ async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_resp
     telefone_responsavel,
     email_responsavel,
     senha,
-    dados_completos
+    dados_completos,
+    status
     )
     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     RETURNING *;
   `;
   const values = [novoEstabelecimento.nome_restaurante,novoEstabelecimento.nome_responsavel, novoEstabelecimento.cpf_responsavel,
                 novoEstabelecimento.cnpj, novoEstabelecimento.telefone_responsavel, novoEstabelecimento.email_responsavel, 
-                novoEstabelecimento.senha, novoEstabelecimento.dados_completos];
+                novoEstabelecimento.senha, novoEstabelecimento.dados_completos, novoEstabelecimento.status];
   
   const res = await pool.query(insertQuery, values);
 
@@ -115,7 +117,7 @@ async function loginEstabelecimento(email, senha) {
 
 async function getEstabelecimentoPorId(id) {
   const query = `
-    SELECT nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, dados_completos
+    SELECT nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, dados_completos, status
     FROM estabelecimentos
     WHERE id_estabelecimento = $1
   `;
@@ -165,5 +167,29 @@ async function completarDados( endereco_cep, endereco_estado, endereco_cidade, e
   return res.rows[0];
 }
 
+async function alterarStatus(status, id) {
+  
+let novoStatus;
 
-module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoPorId, completarDados}
+  if (status === 1){
+    novoStatus = 2
+  }else{
+    novoStatus = 1
+  }
+
+  const query = `
+    UPDATE estabelecimentos
+    SET status = $1
+    WHERE id_estabelecimento = $2
+    RETURNING *
+  `;
+  const values = [novoStatus, id];
+
+  const res = await pool.query(query, values);
+
+  return res.rows[0];
+}
+
+
+
+module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoPorId, completarDados, alterarStatus}

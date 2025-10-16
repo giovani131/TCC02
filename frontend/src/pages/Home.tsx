@@ -171,7 +171,7 @@ export default function Home() {
       <main className="flex-1 p-6">
         <h1 className="text-2xl font-bold mb-4">📍 Mapa de restaurantes</h1>
         <div className="bg-white rounded-xl shadow-lg p-6 h-195">
-          <div className="h-full bg-gray-100 rounded-lg flex items-center justify-center">
+          <div className="h-full bg-gray-100">
             <Mapa />
           </div>
         </div>
