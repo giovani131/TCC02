@@ -5,6 +5,7 @@ const estabelecimentoController = require("../controllers/estabelecimentoControl
 const cardapioController = require("../controllers/cardapioController")
 const sessaoController = require("../controllers/sessaoController")
 const itemController = require("../controllers/itemController")
+const mapaController = require("../controllers/mapaController")
 const autenticarToken = require("../middleware/autenticarToken")
 
 //Usuario
@@ -21,6 +22,7 @@ router.patch("/editarEstabelecimento", autenticarToken, estabelecimentoControlle
 router.delete("/deletarEstabelecimento", autenticarToken, estabelecimentoController.deletarEstabelecimento)
 router.get("/estabelecimentoDados", autenticarToken, estabelecimentoController.getEstabelecimentoLogado)
 router.post("/completarDados", autenticarToken, estabelecimentoController.completarDados)
+router.patch("/alterarStatus", autenticarToken, estabelecimentoController.alterarStatus)
 
 //Cardapio
 router.post("/cadastrarCardapio", autenticarToken, cardapioController.criarCardapio)
@@ -35,5 +37,8 @@ router.post("/cadastrarItem", itemController.criarItem)
 router.get("/listarItensPorSessao/:cardapio_sessao_id", itemController.listarItemPorSessao)
 router.patch("/editarItem", itemController.editarItem)
 router.delete("/deletarItem", itemController.deletarItem)
+
+//Mapa
+router.get("/locRestaurantes", mapaController.getDadosRestaurantes)
 
 module.exports = router;

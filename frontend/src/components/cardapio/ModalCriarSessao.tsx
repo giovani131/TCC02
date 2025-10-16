@@ -18,6 +18,8 @@ export default function ModalAdicionarSessao({ isOpen, onClose, onSave }: ModalA
   const handleSalvar = () => {
     if (nome_sessao.trim() === "" || ordem === "") return; // simples validação
     onSave({ nome_sessao, ordem: Number(ordem) });
+    setNome("")
+    setOrdem(1)
     onClose();
   };
 

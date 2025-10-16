@@ -23,7 +23,9 @@ export default function HomeEstabelecimento() {
   const [activeTab, setActiveTab] = useState("reservasPendentes");
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
+
   const [dadosCompletos, setDadosCompletos] = useState<boolean | null>(null);
+  const[status, setStatus] = useState<Number | null>(null);
 
 
   // Buscar dados do restaurante
@@ -43,6 +45,7 @@ export default function HomeEstabelecimento() {
         if (res.ok){ 
           setEstabelecimento(data);
           setDadosCompletos(data.dados_completos);
+          setStatus(data.status);
         }
         else router.push("/");
       } catch (err) {
@@ -127,6 +130,35 @@ export default function HomeEstabelecimento() {
   }; 
 
 
+  const handleAlterarStatus = async () => {
+  if (status === null) return;
+
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:5500/api/alterarStatus", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setStatus(data.status); // atualiza o status no front
+    } else {
+      alert(data.message || "Erro ao alterar status");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao alterar status");
+  }
+  };
+
+
+
   return (
     <div className="flex min-h-screen bg-purple-50 max-w-screen overflow-x-hidden overflow-y-auto">
       {/* Sidebar */}
@@ -148,8 +180,13 @@ export default function HomeEstabelecimento() {
 
             {/* Status */}
             <p className="text-sm flex items-center justify-center gap-1 mt-1">
-              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              <span className="text-gray-600">Ativo</span>
+              <span
+                className={`w-2 h-2 rounded-full ${status === 1 ? "bg-green-500": status === 2 ? "bg-red-500" : "bg-gray-400"}`}>
+              </span>
+              <span
+                className={status === 1 ? "text-green-500" : status === 2 ? "text-red-500" : "text-gray-600"}>
+                {status === 1 ? "Ativo" : status === 2 ? "Inativo" : "Carregando..."}
+              </span>
             </p>
 
             {/* Informações detalhadas */}
@@ -185,6 +222,21 @@ export default function HomeEstabelecimento() {
 
           {/* Botões com animação */}
           <div className="flex flex-col items-center space-y-3">
+
+            {status !== null && (
+              <button
+                type="button"
+                className={`w-4/5 max-w-[220px] border-2 font-medium rounded-lg py-2 flex items-center justify-center gap-2
+                  transition transform duration-200 ease-out
+                  hover:scale-105 hover:shadow-md active:scale-95
+                  ${status === 1 ? "border-red-500 text-red-600 hover:bg-red-50" : "border-green-500 text-green-600 hover:bg-green-50"}`}
+                onClick={handleAlterarStatus}
+              >
+                {status === 1 ? "Desativar" : "Ativar"}
+              </button>
+            )}
+
+
             <button
               className="w-4/5 max-w-[220px] border-2 border-purple-500 text-purple-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
                         transition transform duration-200 ease-out

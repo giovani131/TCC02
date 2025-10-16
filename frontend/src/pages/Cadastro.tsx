@@ -87,7 +87,7 @@ export default function Cadastro() {
   // FRONT
   return (
     <div className="bg-purple-50">
-      <div className="min-h-screen flex flex-col justify-center items-center scale-80 p-4">
+      <div className="min-h-screen flex flex-col justify-center items-center p-4">
         {/* Cabeçalho */}
         <div className="flex flex-col items-center mb-6">
           <IconCadastro />

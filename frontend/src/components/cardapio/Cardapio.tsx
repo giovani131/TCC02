@@ -134,7 +134,6 @@ export default function Cardapio() {
       if (res.ok) {
         setModalCriarCardapioOpen(false);
         setReloadCardapios((prev) => prev + 1);
-        setCardapioSelecionado(data.cardapio.id);
       } else {
         alert(data.message || "Erro ao cadastrar cardápio");
       }
@@ -415,8 +414,9 @@ export default function Cardapio() {
         <div className="mt-8 flex justify-center">
           <button
             onClick={() => setModalAdicionarOpen(true)}
-            className="px-4 py-2 bg-purple-500 text-white rounded"
+            className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-40"
           >
+            <PlusCircle className="w-4 h-4" />
             Adicionar item
           </button>
         </div>

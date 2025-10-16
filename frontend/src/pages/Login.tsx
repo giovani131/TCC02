@@ -58,7 +58,7 @@ const Login: FC = () => {
   //FRONT
   return (
     <div className="bg-purple-50">
-      <div className="min-h-screen flex flex-col justify-center items-center  scale-80">
+      <div className="min-h-screen flex flex-col justify-center items-center">
         <div className="flex flex-col items-center mb-6">
           <IconLogin/>
           <h1 className="text-2xl font-bold mt-4">Bem-vindo de volta</h1>
