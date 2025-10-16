@@ -50,7 +50,7 @@ async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_resp
     dados_completos,
     status
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING *;
   `;
   const values = [novoEstabelecimento.nome_restaurante,novoEstabelecimento.nome_responsavel, novoEstabelecimento.cpf_responsavel,
@@ -58,6 +58,22 @@ async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_resp
                 novoEstabelecimento.senha, novoEstabelecimento.dados_completos, novoEstabelecimento.status];
   
   const res = await pool.query(insertQuery, values);
+  if(res.rows.length > 0)
+  {
+    const insertQueryCreateRequest = `
+    INSERT INTO estabelecimento_request(
+      estabelecimento_id,
+      data_requisicao,
+      respondido,
+      status
+    )
+      VALUES($1, $2, $3, $4)
+      RETURNING *;
+    `
+    const entidade = res.rows[0];
+    const valuesRequest = [entidade.id_estabelecimento, new Date(), false, 0]
+    await pool.query(insertQueryCreateRequest, valuesRequest)
+  }
 
   return new Estabelecimento(res.rows[0]);
 }
@@ -190,6 +206,68 @@ let novoStatus;
   return res.rows[0];
 }
 
+async function alterarRequisicao(id_estabelecimento, comentarios, status)
+{
+  const query = `
+    UPDATE estabelecimento_request 
+    SET 
+    respondido = $1,
+    data_respondido = $2,
+    comentario = $3,
+    status = $4
+    WHERE estabelecimento_id = $5
+    RETURNING *
+  `;
+  const values = [true, new Date(), comentarios, status, id_estabelecimento]
+  const queryEstabelecimento = 
+  `
+    UPDATE estabelecimentos
+    SET
+    status = $1
+    where id_estabelecimento = $2
+  `
+  const valuesEstabelecimento = [status, id_estabelecimento]
+  const res = await pool.query(query, values)
+  await pool.query(queryEstabelecimento, valuesEstabelecimento)
+  return res.rows[0]
+}
+
+async function lista(status) {
+  if (status == null) {
+    const query = `
+      select 
+      e.*,
+      e2.nome_responsavel,
+      e2.nome_restaurante,
+      e2.cpf_responsavel,
+      e2.telefone_responsavel,
+      e2.email_responsavel
+      from estabelecimento_request e
+      inner join estabelecimentos e2 
+      on e2.id_estabelecimento = e.estabelecimento_id
+      `;
+    const res = await pool.query(query);
+    return res.rows;
+  } else {
+    const queryWithStatus = `
+      select 
+        e.*,
+        e2.nome_responsavel,
+        e2.nome_restaurante,
+        e2.cpf_responsavel,
+        e2.telefone_responsavel,
+        e2.email_responsavel
+        from estabelecimento_request e
+        inner join estabelecimentos e2 
+        on e2.id_estabelecimento = e.estabelecimento_id
+
+    `;
+    const res = await pool.query(queryWithStatus, [status]);
+    return res.rows;
+  }
+}
 
 
-module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoPorId, completarDados, alterarStatus}
+
+
+module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoPorId, completarDados, alterarStatus, alterarRequisicao, lista}

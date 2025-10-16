@@ -173,5 +173,26 @@ async function alterarStatus(req, res) {
   }
 }
 
+async function aceitarEstabelecimento(req, res){
+  console.log("cheguei")
+  try{
+    const {id_estabelecimento, comentarios, status} = req.body
+    console.log(id_estabelecimento, comentarios, status)
+    const requisicao = await estabelecimentoServices.alterarRequisicao(id_estabelecimento, comentarios, status)
+    res.json(requisicao)
+  }
+  catch(error){
+    console.log(error)
+    res.status(500).json({message: ""})
+  }
+}
 
-module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoLogado, completarDados, alterarStatus}
+async function listarEstabelecimentos(req, res)
+{ 
+  const {status} = req
+  const resposta = await estabelecimentoServices.lista(status)
+  res.json(resposta)
+}
+
+
+module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoLogado, completarDados, alterarStatus, aceitarEstabelecimento, listarEstabelecimentos}

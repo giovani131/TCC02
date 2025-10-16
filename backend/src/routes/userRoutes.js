@@ -23,6 +23,8 @@ router.delete("/deletarEstabelecimento", autenticarToken, estabelecimentoControl
 router.get("/estabelecimentoDados", autenticarToken, estabelecimentoController.getEstabelecimentoLogado)
 router.post("/completarDados", autenticarToken, estabelecimentoController.completarDados)
 router.patch("/alterarStatus", autenticarToken, estabelecimentoController.alterarStatus)
+router.patch("/alterar-requisicao", estabelecimentoController.aceitarEstabelecimento)
+router.get("/listar", estabelecimentoController.listarEstabelecimentos)
 
 //Cardapio
 router.post("/cadastrarCardapio", autenticarToken, cardapioController.criarCardapio)
