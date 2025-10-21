@@ -37,4 +37,23 @@ async function listarSessaoPorCardapio(cardapio_id) {
   return res.rows.map(row => new Sessao(row));
 }
 
-module.exports = { criarSessao, listarSessaoPorCardapio }
+async function editarSessao( nome_sessao, ordem, id) {
+
+  const updateQuery = `
+    UPDATE cardapio_sessao
+    SET nome_sessao = $1, ordem = $2
+    WHERE id = $3
+    RETURNING *;
+  `;
+  const values = [nome_sessao, ordem, id];
+
+  const res = await pool.query(updateQuery, values);
+
+  if (res.rows.length === 0) {
+    throw new Error('Sessao não encontrada');
+  }
+
+  return res.rows[0];
+}
+
+module.exports = { criarSessao, listarSessaoPorCardapio, editarSessao }

@@ -27,10 +27,12 @@ router.patch("/alterarStatus", autenticarToken, estabelecimentoController.altera
 //Cardapio
 router.post("/cadastrarCardapio", autenticarToken, cardapioController.criarCardapio)
 router.get("/listarCardapiosPorId", autenticarToken, cardapioController.listarCardapiosPorEstabelecimento)
+router.patch("/editarCardapio", cardapioController.editarCardapio)
 
 //Sessao
 router.post("/cadastrarSessao", sessaoController.criarSessao)
 router.get("/listarSessoesPorCardapio/:cardapio_id", autenticarToken,sessaoController.listarSessaoPorCardapio)
+router.patch("/editarSessao", sessaoController.editarSessao)
 
 //Item
 router.post("/cadastrarItem", itemController.criarItem)

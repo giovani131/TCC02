@@ -48,7 +48,23 @@ async function listarCardapiosPorEstabelecimento(estabelecimento_id) {
   return res.rows.map(row => new Cardapio(row));
 }
 
-module.exports = {
-  criarCardapio,
-  listarCardapiosPorEstabelecimento
-};
+async function editarCardapio( nome_cardapio, descricao_cardapio, status, id) {
+
+  const updateQuery = `
+    UPDATE cardapio
+    SET nome_cardapio = $1, descricao_cardapio = $2, status = $3
+    WHERE id = $4
+    RETURNING *;
+  `;
+  const values = [nome_cardapio, descricao_cardapio, status, id];
+
+  const res = await pool.query(updateQuery, values);
+
+  if (res.rows.length === 0) {
+    throw new Error('Cardapio não encontrado');
+  }
+
+  return res.rows[0];
+}
+
+module.exports = { criarCardapio,listarCardapiosPorEstabelecimento, editarCardapio};

@@ -4,24 +4,30 @@ import ModalEditarItem from "./ModalEditarItem";
 import ModalAdicionarItem from "./ModalAdicionarItem";
 import ModalCriarCardapio from "./ModalCriarCardapio";
 import ModalCriarSessao from "./ModalCriarSessao";
+import ModalEditarCardapio from "./ModalEditarCardapio";
+import ModalEditarSessao from "./ModalEditarSessao";
 import { Pencil, Trash2, PlusCircle } from "lucide-react";
 
 export default function Cardapio() {
   
   const [cardapioSelecionado, setCardapioSelecionado] = useState("");
-  const [listaCardapios, setListaCardapios] = useState<{ id: number; nome_cardapio: string ; descricao_cardapio: string}[]>([])
-  const [sessoes, setSessoes] = useState<{ id: number; nome_sessao: string }[]>([]);
+  const [listaCardapios, setListaCardapios] = useState<{ id: number; nome_cardapio: string ; descricao_cardapio: string; status: number}[]>([])
+  const [sessoes, setSessoes] = useState<{ id: number; nome_sessao: string ; ordem: number}[]>([]);
   const [sessaoAtiva, setSessaoAtiva] = useState<number | null>(null);
   const [itemSelecionado, setItemSelecionado] = useState<number | null>(null);
   const [itens, setItens] = useState<{id: number; nome_item: string; descricao_item: string; preco_item: number; imagem: string, visivel: boolean}[]>([])
   const [itemEmEdicao, setItemEmEdicao] = useState<{id: number;nome_item: string;descricao_item: string;preco_item: number;visivel: boolean;imagem: string;} | null>(null);
+  const [cardapioEmEdicao, setCardapioEmEdicao] = useState<{id: number; nome_cardapio: string; descricao_cardapio: string; status: number} | null>(null);
+  const [sessaoEmEdicao, setSessaoEmEdicao] = useState<{id: number; nome_sessao:string; ordem: number}| null>(null);
 
 
   const [modalApagarOpen, setModalApagarOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [modalAdicionarOpen, setModalAdicionarOpen] = useState(false);
   const [modalCriarCardapioOpen, setModalCriarCardapioOpen] = useState(false);
+  const [modalEditarCardapioOpen, setModalEditarCardapioOpen] = useState(false);
   const [modalCriarSessaoOpen, setModalCriarSessaoOpen] = useState(false);
+  const [modalEditarSessaoOpen, setModalEditarSessaoOpen] = useState(false);
 
   const [reloadCardapios, setReloadCardapios] = useState(0);
   const [reloadSessoes, setReloadSessoes] = useState(0);
@@ -63,7 +69,6 @@ export default function Cardapio() {
 
   useEffect(() => {
     if (!cardapioSelecionado) return;
-
     const fetchSessoes = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -281,6 +286,67 @@ export default function Cardapio() {
     }
   }
 
+  const handleEditCardapio = async (dados: { nome_cardapio: string, descricao_cardapio: string, status: number }) => {
+    try {
+
+      const res = await fetch("http://localhost:5500/api/editarCardapio", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome_cardapio: dados.nome_cardapio,
+          descricao_cardapio: dados.descricao_cardapio,
+          status: dados.status,
+          id: cardapioSelecionado
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setReloadCardapios((prev) => prev + 1);
+        setCardapioEmEdicao(null)
+      } else {
+        alert(data.message || "Erro ao editar cardapio");
+      }
+
+    } catch (err) {
+      console.error("ERRO:",err);
+      alert("Erro ao editar cardapio 2");
+    }
+  };
+
+  const handleEditSessao = async (dados: { nome_sessao: string, ordem: number }) => {
+    try {
+
+      const res = await fetch("http://localhost:5500/api/editarSessao", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome_sessao: dados.nome_sessao,
+          ordem: dados.ordem,
+          id: sessaoAtiva
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setReloadSessoes((prev) => prev + 1);
+        setSessaoEmEdicao(null)
+      } else {
+        alert(data.message || "Erro ao editar sessao");
+      }
+
+    } catch (err) {
+      console.error("ERRO:",err);
+      alert("Erro ao editar sessao 2");
+    }
+  };
+
   return (
     <div>
       <div>
@@ -309,14 +375,36 @@ export default function Cardapio() {
               {listaCardapios.find(c => String(c.id) === cardapioSelecionado)?.descricao_cardapio || ""}
             </p>
           </div>
+          <div className="flex justify-end gap-2 mt-3">
+            {listaCardapios.length > 0 && (
+              <button
+                onClick={() => {
+                  const cardapio = listaCardapios.find(c => String(c.id) === cardapioSelecionado);
+                  if (cardapio) {
+                    setCardapioEmEdicao({
+                      id: cardapio.id,
+                      nome_cardapio: cardapio.nome_cardapio,
+                      descricao_cardapio: cardapio.descricao_cardapio,
+                      status: 1,
+                    });
+                  }
+                  setModalEditarCardapioOpen(true);
+                }}
+                className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Editar cardápio
+              </button>
+            )}
 
-          <button
-            onClick={() => setModalCriarCardapioOpen(true)}
-            className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
-          >
-            <PlusCircle className="w-4 h-4" />
-            Criar cardápio
-          </button>
+            <button
+              onClick={() => setModalCriarCardapioOpen(true)}
+              className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Criar cardápio
+            </button>
+          </div>
         </div>
        
         <div className="flex justify-between items-center mb-6 border-b pb-2">
@@ -339,14 +427,35 @@ export default function Cardapio() {
               <span className="text-gray-400 italic">Nenhuma sessão encontrada</span>
             )}
           </div>
+          <div className="flex justify-end gap-2 mt-3">           
+            {sessoes.length > 0 && (
+              <button
+                onClick={() => {
+                  const sessao = sessoes.find(s => s.id === sessaoAtiva);
+                  if (sessao) {
+                    setSessaoEmEdicao({
+                      id: sessao.id,
+                      nome_sessao: sessao.nome_sessao,
+                      ordem: sessao.ordem
+                    });
+                  }
+                  setModalEditarSessaoOpen(true);
+                }}
+                className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Editar sessão
+              </button>
+            )}
 
-          <button
-            onClick={() => setModalCriarSessaoOpen(true)}
-            className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
-          >
-            <PlusCircle className="w-4 h-4" />
-            Criar sessão
-          </button>
+            <button
+              onClick={() => setModalCriarSessaoOpen(true)}
+              className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Criar sessão
+            </button>
+          </div>
         </div>
 
         <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full max-h-[470px] overflow-y-auto">
@@ -452,10 +561,25 @@ export default function Cardapio() {
         onClose={() => setModalCriarCardapioOpen(false)}
         onSave={handleCreateCardapio}
       />
+
+      <ModalEditarCardapio
+        isOpen={modalEditarCardapioOpen}
+        onClose={() => setModalEditarCardapioOpen(false)}
+        onSave={handleEditCardapio}
+        cardapioEmEdicao={cardapioEmEdicao}
+      />
+
       <ModalCriarSessao
         isOpen={modalCriarSessaoOpen}
         onClose={() => setModalCriarSessaoOpen(false)}
         onSave={handleCreateSessao}
+      />
+
+      <ModalEditarSessao
+        isOpen={modalEditarSessaoOpen}
+        onClose={() => setModalEditarSessaoOpen(false)}
+        onSave={handleEditSessao}
+        sessaoEmEdicao={sessaoEmEdicao}
       />
     </div>
   );

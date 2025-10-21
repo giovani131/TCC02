@@ -64,7 +64,7 @@ export default function ModalCriarCardapio({ isOpen, onClose, onSave }: Props) {
           </div>
 
           <div>
-            <p>Status:</p>
+            <p>Status (1-Ativo  2-Inativo  3-Bloqueado) :</p>
             <input
               type="number"
               name="status"

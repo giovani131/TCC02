@@ -37,4 +37,30 @@ async function listarCardapiosPorEstabelecimento(req, res) {
   }
 }
 
-module.exports = { criarCardapio, listarCardapiosPorEstabelecimento };
+async function editarCardapio(req, res) {
+  try { 
+    const { nome_cardapio, descricao_cardapio, status, id } = req.body;
+
+    if (nome_cardapio == null ||descricao_cardapio == null ||status == null ||id == null) {
+      return res.status(400).json({ message: 'Preencha todos os campos obrigatórios!' });
+    }
+
+    const cardapioAtualizado = await cardapioServices.editarCardapio( nome_cardapio, descricao_cardapio, status, id);
+
+    res.status(200).json({
+      message: 'Cardapio atualizado com sucesso!',
+      item: {
+        id: cardapioAtualizado.id,
+        nome_cardapio: cardapioAtualizado.nome_cardapio,
+        descricao_cardapio: cardapioAtualizado.descricao_cardapio,
+        status: cardapioAtualizado.status
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+
+
+module.exports = { criarCardapio, listarCardapiosPorEstabelecimento, editarCardapio };

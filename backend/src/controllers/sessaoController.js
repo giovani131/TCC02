@@ -36,5 +36,28 @@ async function listarSessaoPorCardapio(req, res) {
   }
 }
 
+async function editarSessao(req, res) {
+  try { 
+    const { nome_sessao, ordem, id } = req.body;
 
-module.exports = { criarSessao , listarSessaoPorCardapio };
+    if (nome_sessao == null || ordem == null ||id == null) {
+      return res.status(400).json({ message: 'Preencha todos os campos obrigatórios!' });
+    }
+
+    const sessaoAtualizado = await sessaoServices.editarSessao( nome_sessao, ordem, id);
+
+    res.status(200).json({
+      message: 'Sessão atualizada com sucesso!',
+      item: {
+        id: sessaoAtualizado.id,
+        nome_sessao: sessaoAtualizado.nome_sessao,
+        ordem: sessaoAtualizado.ordem
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+
+module.exports = { criarSessao , listarSessaoPorCardapio, editarSessao };
