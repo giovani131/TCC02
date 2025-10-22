@@ -67,4 +67,19 @@ async function editarCardapio( nome_cardapio, descricao_cardapio, status, id) {
   return res.rows[0];
 }
 
-module.exports = { criarCardapio,listarCardapiosPorEstabelecimento, editarCardapio};
+async function deletarCardapio(id) {
+
+  const deleteQuery = `
+    DELETE FROM cardapio
+    WHERE id = $1
+    RETURNING *;
+  `;
+
+  const res = await pool.query(deleteQuery, [Number(id)]);
+  if (res.rows.length === 0) {
+    throw new Error('Cardapio não encontrado');
+  }
+  return res.rows[0];
+}
+
+module.exports = { criarCardapio,listarCardapiosPorEstabelecimento, editarCardapio, deletarCardapio};

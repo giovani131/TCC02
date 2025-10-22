@@ -65,8 +65,7 @@ async function editarItem(nome_item, descricao_item, preco_item, visivel, imagem
 }
 
 async function deletarItem(id) {
-  console.log('entrou')
-  console.log(id)
+
   const deleteQuery = `
     DELETE FROM item_sessao
     WHERE id = $1

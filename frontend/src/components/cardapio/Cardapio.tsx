@@ -6,7 +6,9 @@ import ModalCriarCardapio from "./ModalCriarCardapio";
 import ModalCriarSessao from "./ModalCriarSessao";
 import ModalEditarCardapio from "./ModalEditarCardapio";
 import ModalEditarSessao from "./ModalEditarSessao";
-import { Pencil, Trash2, PlusCircle } from "lucide-react";
+import ModalDeletarCardapio from "./ModalDeletarCardapio";
+import ModalDeletarSessao from "./ModalDeletarSessao";
+import { Pencil, Trash2, PlusCircle, Edit3 } from "lucide-react";
 
 export default function Cardapio() {
   
@@ -26,8 +28,10 @@ export default function Cardapio() {
   const [modalAdicionarOpen, setModalAdicionarOpen] = useState(false);
   const [modalCriarCardapioOpen, setModalCriarCardapioOpen] = useState(false);
   const [modalEditarCardapioOpen, setModalEditarCardapioOpen] = useState(false);
+  const [modalDeletarCardapioOpen, setModalDeletarCardapioOpen] = useState(false);
   const [modalCriarSessaoOpen, setModalCriarSessaoOpen] = useState(false);
   const [modalEditarSessaoOpen, setModalEditarSessaoOpen] = useState(false);
+  const [modalDeletarSessaoOpen, setModalDeletarSessaoOpen] = useState(false);
 
   const [reloadCardapios, setReloadCardapios] = useState(0);
   const [reloadSessoes, setReloadSessoes] = useState(0);
@@ -54,7 +58,6 @@ export default function Cardapio() {
 
         const data = await res.json();
         setListaCardapios(data);
-        console.log(data)
         if (data.length > 0){
           const cardapioInicial = String(data[0].id)
           setCardapioSelecionado(cardapioInicial);
@@ -264,7 +267,6 @@ export default function Cardapio() {
   };
 
   const handleDeleteItem = async()=>{
-    console.log('entrou')
     try {
       const res = await fetch("http://localhost:5500/api/deletarItem", {
           method: "DELETE",
@@ -317,6 +319,28 @@ export default function Cardapio() {
     }
   };
 
+  const handleDeleteCardapio = async()=>{
+    try {
+      const res = await fetch("http://localhost:5500/api/deletarCardapio", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: cardapioSelecionado
+          }),
+        }); 
+      
+      const data = await res.json();
+      if(res.ok){
+        setReloadCardapios((prev)=> prev + 1);
+      }
+    } catch (err) {
+      console.error("ERRO:",err);
+      alert("Erro ao deletar cardapio");
+    }
+  }
+
   const handleEditSessao = async (dados: { nome_sessao: string, ordem: number }) => {
     try {
 
@@ -347,16 +371,39 @@ export default function Cardapio() {
     }
   };
 
+  const handleDeleteSessao = async()=>{
+    try {
+      const res = await fetch("http://localhost:5500/api/deletarSessao", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: sessaoAtiva
+          }),
+        }); 
+      
+      const data = await res.json();
+      if(res.ok){
+        setReloadSessoes((prev)=> prev + 1);
+      }
+    } catch (err) {
+      console.error("ERRO:",err);
+      alert("Erro ao deletar sessão");
+    }
+  }
+
   return (
     <div>
       <div>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-4 border-b border-gray-200 pb-3">
+          {/* Seletor e descrição do cardápio */}
           <div className="flex items-center gap-5">
             <select
               id="cardapioSelect"
               value={cardapioSelecionado}
               onChange={(e) => setCardapioSelecionado(e.target.value)}
-              className="border rounded-lg px-3 py-2"
+              className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
             >
               {listaCardapios.length > 0 ? (
                 listaCardapios.map((cardapio) => (
@@ -371,15 +418,28 @@ export default function Cardapio() {
               )}
             </select>
 
-            <p className="text-gray-600 text-sm italic">
-              {listaCardapios.find(c => String(c.id) === cardapioSelecionado)?.descricao_cardapio || ""}
+            <p className="text-gray-600 text-sm italic max-w-xs truncate">
+              {listaCardapios.find((c) => String(c.id) === cardapioSelecionado)
+                ?.descricao_cardapio || ""}
             </p>
           </div>
-          <div className="flex justify-end gap-2 mt-3">
+
+          {/* Botões do cardápio */}
+          <div className="flex gap-2 items-center">
+            <button
+              onClick={() => setModalCriarCardapioOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-md transition-all"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Criar
+            </button>
+            
             {listaCardapios.length > 0 && (
               <button
                 onClick={() => {
-                  const cardapio = listaCardapios.find(c => String(c.id) === cardapioSelecionado);
+                  const cardapio = listaCardapios.find(
+                    (c) => String(c.id) === cardapioSelecionado
+                  );
                   if (cardapio) {
                     setCardapioEmEdicao({
                       id: cardapio.id,
@@ -390,24 +450,27 @@ export default function Cardapio() {
                   }
                   setModalEditarCardapioOpen(true);
                 }}
-                className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 hover:shadow-md transition-all"
               >
-                <PlusCircle className="w-4 h-4" />
-                Editar cardápio
+                <Edit3 className="w-4 h-4" />
+                Editar
               </button>
             )}
 
-            <button
-              onClick={() => setModalCriarCardapioOpen(true)}
-              className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Criar cardápio
-            </button>
+            {listaCardapios.length > 0 && (
+              <button
+                onClick={() => setModalDeletarCardapioOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500 text-white hover:bg-rose-600 hover:shadow-md transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                Deletar
+              </button>
+            )}
           </div>
         </div>
-       
-        <div className="flex justify-between items-center mb-6 border-b pb-2">
+
+        {/* Sessões */}
+        <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-3">
           <div className="flex gap-4">
             {sessoes.length > 0 ? (
               sessoes.map((sessao) => (
@@ -416,7 +479,7 @@ export default function Cardapio() {
                   onClick={() => setSessaoAtiva(sessao.id)}
                   className={`pb-2 px-3 transition-colors duration-300 ${
                     sessaoAtiva === sessao.id
-                      ? "border-b-2 border-purple-600 text-gray-500 font-semibold"
+                      ? "border-b-2 border-purple-600 text-gray-800 font-semibold"
                       : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
@@ -424,39 +487,53 @@ export default function Cardapio() {
                 </button>
               ))
             ) : (
-              <span className="text-gray-400 italic">Nenhuma sessão encontrada</span>
+              <span className="text-gray-400 italic">
+                Nenhuma sessão encontrada
+              </span>
             )}
           </div>
-          <div className="flex justify-end gap-2 mt-3">           
+
+          <div className="flex gap-2 items-center">    
+            <button
+              onClick={() => setModalCriarSessaoOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-md transition-all"
+            >
+              <PlusCircle className="w-4 h-4" />
+              Criar
+            </button>
+            
             {sessoes.length > 0 && (
               <button
                 onClick={() => {
-                  const sessao = sessoes.find(s => s.id === sessaoAtiva);
+                  const sessao = sessoes.find((s) => s.id === sessaoAtiva);
                   if (sessao) {
                     setSessaoEmEdicao({
                       id: sessao.id,
                       nome_sessao: sessao.nome_sessao,
-                      ordem: sessao.ordem
+                      ordem: sessao.ordem,
                     });
                   }
                   setModalEditarSessaoOpen(true);
                 }}
-                className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 hover:shadow-md transition-all"
               >
-                <PlusCircle className="w-4 h-4" />
-                Editar sessão
+                <Edit3 className="w-4 h-4" />
+                Editar
               </button>
             )}
 
-            <button
-              onClick={() => setModalCriarSessaoOpen(true)}
-              className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-35"
-            >
-              <PlusCircle className="w-4 h-4" />
-              Criar sessão
-            </button>
+            {sessoes.length > 0 && (
+              <button
+                onClick={() => setModalDeletarSessaoOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-500 text-white hover:bg-rose-600 hover:shadow-md transition-all"
+              >
+                <Trash2 className="w-4 h-4" />
+                Deletar
+              </button>
+            )}
           </div>
         </div>
+
 
         <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 w-full max-h-[470px] overflow-y-auto">
           {itens.length > 0 ? (
@@ -520,7 +597,7 @@ export default function Cardapio() {
         </ul>
 
 
-        <div className="mt-8 flex justify-center">
+        <div className="mt-6 flex justify-center">
           <button
             onClick={() => setModalAdicionarOpen(true)}
             className="flex items-center gap-2 px-2 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition w-40"
@@ -569,6 +646,15 @@ export default function Cardapio() {
         cardapioEmEdicao={cardapioEmEdicao}
       />
 
+      <ModalDeletarCardapio
+        isOpen={modalDeletarCardapioOpen}
+        onClose={() => {
+          setModalDeletarCardapioOpen(false);
+          setCardapioSelecionado("");
+        }}
+        onConfirm={handleDeleteCardapio}
+      />      
+
       <ModalCriarSessao
         isOpen={modalCriarSessaoOpen}
         onClose={() => setModalCriarSessaoOpen(false)}
@@ -581,6 +667,15 @@ export default function Cardapio() {
         onSave={handleEditSessao}
         sessaoEmEdicao={sessaoEmEdicao}
       />
+
+      <ModalDeletarSessao
+        isOpen={modalDeletarSessaoOpen}
+        onClose={() => {
+          setModalDeletarSessaoOpen(false);
+          setSessaoAtiva(null);
+        }}
+        onConfirm={handleDeleteSessao}
+      />  
     </div>
   );
 }

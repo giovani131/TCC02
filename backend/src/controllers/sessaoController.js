@@ -59,5 +59,23 @@ async function editarSessao(req, res) {
   }
 }
 
+async function deletarSessao(req, res) {
+  try {
+    const {id} = req.body;
 
-module.exports = { criarSessao , listarSessaoPorCardapio, editarSessao };
+    const sessaoDeletada = await sessaoServices.deletarSessao(id);
+
+    res.status(200).json({
+      message: 'Sessao deletado com sucesso!',
+      user: {
+        id: sessaoDeletada.id,
+        nome_sessao: sessaoDeletada.nome_sessao,
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+
+module.exports = { criarSessao , listarSessaoPorCardapio, editarSessao, deletarSessao };

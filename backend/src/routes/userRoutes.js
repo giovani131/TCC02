@@ -28,11 +28,13 @@ router.patch("/alterarStatus", autenticarToken, estabelecimentoController.altera
 router.post("/cadastrarCardapio", autenticarToken, cardapioController.criarCardapio)
 router.get("/listarCardapiosPorId", autenticarToken, cardapioController.listarCardapiosPorEstabelecimento)
 router.patch("/editarCardapio", cardapioController.editarCardapio)
+router.delete("/deletarCardapio", cardapioController.deletarCardapio)
 
 //Sessao
 router.post("/cadastrarSessao", sessaoController.criarSessao)
-router.get("/listarSessoesPorCardapio/:cardapio_id", autenticarToken,sessaoController.listarSessaoPorCardapio)
+router.get("/listarSessoesPorCardapio/:cardapio_id", autenticarToken, sessaoController.listarSessaoPorCardapio)
 router.patch("/editarSessao", sessaoController.editarSessao)
+router.delete("/deletarSessao", sessaoController.deletarSessao)
 
 //Item
 router.post("/cadastrarItem", itemController.criarItem)

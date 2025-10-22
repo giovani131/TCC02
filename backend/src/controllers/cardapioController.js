@@ -61,6 +61,24 @@ async function editarCardapio(req, res) {
   }
 }
 
+async function deletarCardapio(req, res) {
+  try {
+    const {id} = req.body;
+
+    const cardapioDeletado = await cardapioServices.deletarCardapio(id);
+
+    res.status(200).json({
+      message: 'Cardapio deletado com sucesso!',
+      user: {
+        id: cardapioDeletado.id,
+        nome_cardapio: cardapioDeletado.nome_cardapio,
+      }
+    });
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
 
 
-module.exports = { criarCardapio, listarCardapiosPorEstabelecimento, editarCardapio };
+
+module.exports = { criarCardapio, listarCardapiosPorEstabelecimento, editarCardapio, deletarCardapio };

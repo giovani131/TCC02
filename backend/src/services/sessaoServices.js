@@ -56,4 +56,19 @@ async function editarSessao( nome_sessao, ordem, id) {
   return res.rows[0];
 }
 
-module.exports = { criarSessao, listarSessaoPorCardapio, editarSessao }
+async function deletarSessao(id) {
+
+  const deleteQuery = `
+    DELETE FROM cardapio_sessao
+    WHERE id = $1
+    RETURNING *;
+  `;
+
+  const res = await pool.query(deleteQuery, [Number(id)]);
+  if (res.rows.length === 0) {
+    throw new Error('Sessão não encontrado');
+  }
+  return res.rows[0];
+}
+
+module.exports = { criarSessao, listarSessaoPorCardapio, editarSessao, deletarSessao }
