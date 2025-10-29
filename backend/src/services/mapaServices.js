@@ -2,7 +2,8 @@ const pool = require('../config/db');
 
 async function getDadosRestaurantes() {
     const query = `
-        SELECT    
+        SELECT 
+        id_estabelecimento,   
         nome_restaurante,
         logo,
         telefone_restaurante,
@@ -19,7 +20,6 @@ async function getDadosRestaurantes() {
         `;
 
     const result = await pool.query(query);
-    console.log(result)
     if (result.rows.length === 0) return [];
 
     const restaurantesComCoords = [];
@@ -34,6 +34,7 @@ async function getDadosRestaurantes() {
         if (data.status === 'OK' && data.results.length > 0) {
         const { lat, lng } = data.results[0].geometry.location;
         restaurantesComCoords.push({
+            id_estabelecimento: r.id_estabelecimento,
             nome_restaurante: r.nome_restaurante,
             logo: r.logo,
             telefone_restaurante: r.telefone_restaurante,
