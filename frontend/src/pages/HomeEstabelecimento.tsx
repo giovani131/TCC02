@@ -38,11 +38,12 @@ export default function HomeEstabelecimento() {
 
     const fetchEstabelecimento = async () => {
       try {
-        const res = await fetch("http://localhost:5500/api/estabelecimentoDados", {
+        const res = await fetch("http://localhost:5500/api/estabelecimentoLogadoDadosIniciais", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
         if (res.ok){ 
+          console.log(data)
           setEstabelecimento(data);
           setDadosCompletos(data.dados_completos);
           setStatus(data.status);

@@ -100,10 +100,10 @@ async function loginEstabelecimento(req, res) {
   }
 }
 
-async function getEstabelecimentoLogado(req, res) {
+async function getEstabelecimentoLogadoDadosIniciais(req, res) {
   try {
     const userId = req.user.id; 
-    const estabelecimento = await estabelecimentoServices.getEstabelecimentoPorId(userId);
+    const estabelecimento = await estabelecimentoServices.getEstabelecimentoLogadoDadosIniciais(userId);
 
     if (!estabelecimento) {
       return res.status(404).json({ message: "Estabelecimento não encontrado" });
@@ -173,5 +173,21 @@ async function alterarStatus(req, res) {
   }
 }
 
+async function getEstabelecimentoDadosCompletos(req, res) {
+  try {
+    const {id_estabelecimento} = req.params 
+    const estabelecimento = await estabelecimentoServices.getEstabelecimentoDadosCompletos(id_estabelecimento);
 
-module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoLogado, completarDados, alterarStatus}
+    if (!estabelecimento) {
+      return res.status(404).json({ message: "Estabelecimento não encontrado" });
+    }
+
+    res.json(estabelecimento);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Erro ao buscar estabelecimento" });
+  }
+}
+
+module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento,
+   getEstabelecimentoLogadoDadosIniciais, completarDados, alterarStatus, getEstabelecimentoDadosCompletos}

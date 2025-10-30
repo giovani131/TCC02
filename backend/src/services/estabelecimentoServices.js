@@ -50,7 +50,7 @@ async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_resp
     dados_completos,
     status
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING *;
   `;
   const values = [novoEstabelecimento.nome_restaurante,novoEstabelecimento.nome_responsavel, novoEstabelecimento.cpf_responsavel,
@@ -102,12 +102,11 @@ async function deletarEstabelecimento(id) {
   return res.rows[0];
 }
 
-
-
 async function loginEstabelecimento(email, senha) {
   const res = await pool.query('SELECT * FROM estabelecimentos WHERE email_responsavel = $1', [email]);
   const estabelecimento = res.rows[0];
   if (!estabelecimento) throw new Error('Email ou senha inválidos');
+  if (estabelecimento.status !== 1) throw new Error('Estabelecimento ainda não foi aprovado pelos nossos administradores.')
 
   const senhaValida = await bcrypt.compare(senha, estabelecimento.senha);
   if (!senhaValida) throw new Error('Email ou senha inválidos');
@@ -115,7 +114,7 @@ async function loginEstabelecimento(email, senha) {
   return { estabelecimento, token };
 }
 
-async function getEstabelecimentoPorId(id) {
+async function getEstabelecimentoLogadoDadosIniciais(id) {
   const query = `
     SELECT nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, dados_completos, status
     FROM estabelecimentos
@@ -190,6 +189,24 @@ let novoStatus;
   return res.rows[0];
 }
 
+async function getEstabelecimentoDadosCompletos(id) {
+  const query = `
+    SELECT nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, dados_completos, status, 
+    endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_rua, endereco_num, logo, telefone_restaurante,
+    especialidade, descricao_restaurante, meios_pagamento, tipos_servico
+    FROM estabelecimentos
+    WHERE id_estabelecimento = $1
+  `;
+  const values = [id];
+
+  const result = await pool.query(query, values);
+  if (result.rows.length === 0) return null;
+  return result.rows[0];
+}
 
 
-module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento, getEstabelecimentoPorId, completarDados, alterarStatus}
+
+module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, 
+  loginEstabelecimento, getEstabelecimentoLogadoDadosIniciais, completarDados, alterarStatus, 
+  getEstabelecimentoDadosCompletos
+}

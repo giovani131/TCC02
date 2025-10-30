@@ -44,7 +44,7 @@ export default function Cardapio() {
       if (!token) return;
 
       try {
-        const res = await fetch("http://localhost:5500/api/listarCardapiosPorId", {
+        const res = await fetch("http://localhost:5500/api/listarCardapiosPorIdEstabelecimento", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

@@ -79,6 +79,18 @@ async function deletarCardapio(req, res) {
   }
 }
 
+async function listarCardapiosPorEstabelecimentoCliente(req, res) {
+  try {
+    const { estabelecimento_id }  = req.params;
+
+    const cardapios = await cardapioServices.listarCardapiosPorEstabelecimento(estabelecimento_id);
+
+    res.status(200).json(cardapios);
+  } catch (err) {
+    res.status(500).json({ message: "Erro ao listar cardápios", error: err.message });
+  }
+}
 
 
-module.exports = { criarCardapio, listarCardapiosPorEstabelecimento, editarCardapio, deletarCardapio };
+
+module.exports = { criarCardapio, listarCardapiosPorEstabelecimento, editarCardapio, deletarCardapio, listarCardapiosPorEstabelecimentoCliente };

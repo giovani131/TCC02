@@ -32,15 +32,6 @@ async function criarCardapio({ nome_cardapio, descricao_cardapio, status, estabe
   return new Cardapio(res.rows[0]);
 }
 
-/*
-async function getCardapioPorId(id) {
-  const query = `SELECT * FROM cardapio WHERE id = $1`;
-  const res = await pool.query(query, [id]);
-
-  if (res.rows.length === 0) return null;
-  return new Cardapio(res.rows[0]);
-}*/
-
 async function listarCardapiosPorEstabelecimento(estabelecimento_id) {
   const query = `SELECT * FROM cardapio WHERE estabelecimento_id = $1`;
   const res = await pool.query(query, [estabelecimento_id]);

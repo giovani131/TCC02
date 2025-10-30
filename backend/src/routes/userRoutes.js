@@ -20,13 +20,15 @@ router.post("/cadastrarEstabelecimento", estabelecimentoController.cadastrarEsta
 router.post("/loginEstabelecimento", estabelecimentoController.loginEstabelecimento)
 router.patch("/editarEstabelecimento", autenticarToken, estabelecimentoController.editarEstabelecimento)
 router.delete("/deletarEstabelecimento", autenticarToken, estabelecimentoController.deletarEstabelecimento)
-router.get("/estabelecimentoDados", autenticarToken, estabelecimentoController.getEstabelecimentoLogado)
+router.get("/estabelecimentoLogadoDadosIniciais", autenticarToken, estabelecimentoController.getEstabelecimentoLogadoDadosIniciais)
 router.post("/completarDados", autenticarToken, estabelecimentoController.completarDados)
 router.patch("/alterarStatus", autenticarToken, estabelecimentoController.alterarStatus)
+router.get("/estabelecimentoDadosCompletos/:id_estabelecimento", estabelecimentoController.getEstabelecimentoDadosCompletos)
 
 //Cardapio
 router.post("/cadastrarCardapio", autenticarToken, cardapioController.criarCardapio)
-router.get("/listarCardapiosPorId", autenticarToken, cardapioController.listarCardapiosPorEstabelecimento)
+router.get("/listarCardapiosPorIdEstabelecimento", autenticarToken, cardapioController.listarCardapiosPorEstabelecimento)
+router.get("/listarCardapiosPorIdCliente/:estabelecimento_id", cardapioController.listarCardapiosPorEstabelecimentoCliente)
 router.patch("/editarCardapio", cardapioController.editarCardapio)
 router.delete("/deletarCardapio", cardapioController.deletarCardapio)
 
