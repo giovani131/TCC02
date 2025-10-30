@@ -6,6 +6,7 @@ import Cardapio from "@/components/cardapio/Cardapio";
 import Horarios from "@/components/Horarios";
 import ModalApagarConta from "@/components/ModelApagarConta";
 import ModalEditarEstabelecimento from "@/components/ModalEditarEstabelecimento";
+import { Areas } from "../components/areas/Areas";
 
 type Estabelecimento = {
   nome_restaurante: string;
@@ -334,7 +335,7 @@ export default function HomeEstabelecimento() {
               {activeTab === "cardapio" && <Cardapio/>}
               {activeTab === "horarios" && <Horarios/>}
               {activeTab === "mesas" && (
-                <p className="text-gray-600">🍽️ Aqui você controla mesas e cadeiras...</p>
+                <Areas />
               )}
             </motion.div>
           </AnimatePresence>
