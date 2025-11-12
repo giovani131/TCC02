@@ -6,6 +6,7 @@ const cardapioController = require("../controllers/cardapioController")
 const sessaoController = require("../controllers/sessaoController")
 const itemController = require("../controllers/itemController")
 const mapaController = require("../controllers/mapaController")
+const areaController = require("../controllers/areaController")
 const autenticarToken = require("../middleware/autenticarToken")
 
 //Usuario
@@ -47,4 +48,9 @@ router.delete("/deletarItem", itemController.deletarItem)
 //Mapa
 router.get("/locRestaurantes", mapaController.getDadosRestaurantes)
 
+//Area
+router.get("/area/listar", autenticarToken, areaController.listar)
+router.get("/area/:id", autenticarToken, areaController.pegarPorId)
+router.post("/area/cadastrar", autenticarToken, areaController.criar)
+router.patch("/area/atualizar", autenticarToken, areaController.atualizar)
 module.exports = router;
