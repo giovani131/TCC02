@@ -3,7 +3,7 @@ const areaServico = require("../services/areaServico")
 async function criar(req, res)
 {
     try{
-        const { nome_area, status, capacidade_mesa } = req.body;
+        const { nome_area, status, capacidade_mesa, motivo, width, height } = req.body;
         const estabelecimento_id = req.user.id;
 
         if(!nome_area || !status || !capacidade_mesa){
@@ -11,7 +11,7 @@ async function criar(req, res)
         }
 
         const area = await areaServico.criarArea({
-            nome_area, status, capacidade_mesa, estabelecimento_id
+            nome_area, status, capacidade_mesa, estabelecimento_id, motivo, width, height
         });
 
         res.status(201).json({

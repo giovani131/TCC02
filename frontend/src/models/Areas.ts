@@ -5,6 +5,8 @@ export interface IAreaDTO{
     capacidade_mesa: number
     mesas_disponiveis: number
     motivo?: string | ""
+    width: number
+    height: number
 }
 
 export interface IAreaRequest{
@@ -12,6 +14,8 @@ export interface IAreaRequest{
     status: number
     capacidade_mesa: number
     motivo?: string | ""
+    width: number
+    height: number
 }
 
 export interface IAreaRequestUpdate{
@@ -19,4 +23,6 @@ export interface IAreaRequestUpdate{
     nome_area: string
     status: number
     capacidade_mesa: number
+    width: number
+    height: number
 }

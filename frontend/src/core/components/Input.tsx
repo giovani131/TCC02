@@ -8,6 +8,8 @@ interface InputProps {
   type?: string;
   register?: UseFormRegisterReturn;
   isLoading?: boolean;
+  value? : any
+  disabled?: boolean
 }
 
 export function Input({
@@ -17,6 +19,8 @@ export function Input({
   type = "text",
   register,
   isLoading = false,
+  value,
+  disabled
 }: InputProps) {
   return (
     <div className="flex flex-col p-2">
@@ -34,6 +38,8 @@ export function Input({
               type={type}
               placeholder={placeholder}
               {...register}
+              value={value}
+              disabled={disabled}
               className="flex-1 bg-white text-black font-semibold border border-black/35 rounded-[8px] p-2 placeholder:text-black/50 placeholder:text-[14px] focus:border-purple-500 focus:outline-none"
             />
           </div>

@@ -540,7 +540,7 @@ export default function Cardapio() {
             itens.map((item) => (
               <li
                 key={item.id}
-                className="border rounded-lg p-3 hover:shadow flex flex-col justify-between w-80"
+                className="border rounded-lg p-3 hover:shadow flex flex-col justify-between"
               >
                 <div className="flex flex-col items-center gap-3">
                   {item.imagem && (

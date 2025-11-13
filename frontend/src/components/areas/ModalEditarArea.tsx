@@ -46,7 +46,9 @@ export function ModalEditarArea({ id, close }: ModalEditarAreaProps)
             id: Number(id),
             nome_area: data.nome_area,
             status: Number(data.status),
-            capacidade_mesa: Number(data.capacidade_mesa)
+            capacidade_mesa: Number(data.capacidade_mesa),
+            width: Number(data.width),
+            height: Number(data.height)
         }
         setIsLoadingReq(true)
         const res = await updateArea(payload)
@@ -88,6 +90,18 @@ export function ModalEditarArea({ id, close }: ModalEditarAreaProps)
                                 type="number" 
                                 isLoading={isLoadingQuery}
                                 register={(register("capacidade_mesa"))}
+                            />
+                            <Input 
+                                label={"Quantidade de espacos na horizontal"} 
+                                placeholder="Ex: 10" 
+                                type="number" 
+                                register={register("width")}
+                            />
+                            <Input 
+                                label={"Quantidade de espacos na vertical"} 
+                                placeholder="Ex: 10" 
+                                type="number" 
+                                register={register("height")}
                             />
                             <GroupButtons 
                                 cancelOnClick={close} 

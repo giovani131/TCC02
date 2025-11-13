@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ModalEditarUsuario from "@/components/ModalEditarUsuario";
 import ModalApagarConta from "@/components/ModelApagarConta";
-import { User, Edit2, Trash2 } from "lucide-react";
+import { User, Edit2, Trash2, List, Map } from "lucide-react";
 import Mapa from "@/components/Mapa";
+import { useGeolocOneShot } from "@/services/geolocation";
+import { Restaurante } from "@/components/restaurantes/Restaurantes";
 
 type Usuario = {
   nome: string;
@@ -16,8 +18,21 @@ export default function Home() {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [isModalEditOpen, setIsModalEditOpen] = useState(false);
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+  const [isMap, setIsMap] = useState(false)
+  const [isRest, setIsRest] = useState(true)
+  const { coords, error } = useGeolocOneShot();
 
-  // Buscar dados do usuário
+  function viewRest(){
+    setIsMap(false)
+    setIsRest(true)
+  }
+
+  function viewMap()
+  {
+    setIsMap(true)
+    setIsRest(false)
+  }
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -129,8 +144,25 @@ export default function Home() {
             <p className="text-sm text-gray-500">{usuario?.telefone}</p>
           </div>
 
-          {/* Botões com animação */}
           <div className="flex flex-col items-center space-y-3">
+            <button
+              className="w-4/5 max-w-[220px] border-2 border-purple-500 text-purple-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
+                        transition transform duration-200 ease-out
+                        hover:bg-purple-50 hover:scale-105 hover:shadow-md active:scale-95"
+              onClick={viewRest}
+            >
+              <List className="w-5 h-5" />
+                Restaurantes
+            </button>
+            <button
+              className="w-4/5 max-w-[220px] border-2 border-purple-500 text-purple-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
+                        transition transform duration-200 ease-out
+                        hover:bg-purple-50 hover:scale-105 hover:shadow-md active:scale-95"
+                        onClick={viewMap}
+            >
+              <Map className="w-5 h-5" />
+                Proximos a mim
+            </button>
             <button
               className="w-4/5 max-w-[220px] border-2 border-purple-500 text-purple-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
                         transition transform duration-200 ease-out
@@ -167,14 +199,25 @@ export default function Home() {
         </button>
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 p-6">
-        <h1 className="text-2xl font-bold mb-4">📍 Mapa de restaurantes</h1>
-        <div className="bg-white rounded-xl shadow-lg p-6 h-195">
-          <div className="h-full bg-gray-100">
-            <Mapa />
+    <main className="flex-1 p-6 bg-white">
+      {
+        isMap && 
+        <>
+          <h1 className="text-2xl font-bold mb-4">📍 Mapa de restaurantes</h1>
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="h-[520px] bg-gray-100 rounded-lg flex items-center justify-center text-gray-500 text-lg">
+              <Mapa />
+            </div>
           </div>
-        </div>
+        </>
+      }
+      {
+        isRest && 
+        <>
+          <Restaurante />
+        </>
+      }
+
       </main>
 
       {/* Modais */}

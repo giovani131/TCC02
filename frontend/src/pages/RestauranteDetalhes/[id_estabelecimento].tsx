@@ -114,83 +114,185 @@ export default function RestauranteDetalhes() {
   }, [sessaoAtiva]);
 
   return (
-    <div className="bg-purple-50 min-h-screen flex flex-col justify-center items-center p-6">
-      <div className="flex flex-col items-center mb-6">
-        {dadosRestaurante?.logo && (
+<div className="min-h-screen bg-gradient-to-b from-purple-100 via-white to-white">
+  {/* HEADER */}
+  <header className="relative">
+    {/* faixa ilustrativa (pode virar cover do restaurante se você tiver) */}
+    <div className="h-36 sm:h-44 bg-gradient-to-r from-purple-500 to-fuchsia-500" />
+
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-14 sm:-mt-16">
+      <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        {dadosRestaurante?.logo ? (
           <img
             src={dadosRestaurante.logo}
             alt={`${dadosRestaurante.nome_restaurante} Logo`}
-            className="w-24 h-24 object-cover rounded-full mb-4 shadow-md"
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover ring-4 ring-white shadow-md"
           />
+        ) : (
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-purple-200 ring-4 ring-white grid place-content-center text-purple-700 font-bold">
+            {dadosRestaurante?.nome_restaurante?.[0] ?? "R"}
+          </div>
         )}
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 text-center">
-          {dadosRestaurante?.nome_restaurante || "Restaurante"}
-        </h1>
-      </div>
 
-      <div className="bg-white shadow-lg rounded-xl p-6 sm:p-8 w-full max-w-3xl mx-auto min-h-[420px] sm:min-h-[480px] flex flex-col transition-all duration-300">
-        <div className="flex justify-around border-b mb-6 pb-2">
-          {[
-            { id: "informacoes", label: "Informações"},
-            { id: "cardapio", label: "Cardápio" },
-            { id: "horarios", label: "Horários" },
-            { id: "mesas", label: "Mesas"},
-            { id: "reserva", label: "Reserva" }
-          ].map((aba) => (
-            <button
-              key={aba.id}
-              onClick={() => setAbaAtiva(aba.id)}
-              className={`pb-2 px-4 text-sm sm:text-base font-medium border-b-2 transition-colors duration-300 ${
-                abaAtiva === aba.id
-                  ? "text-purple-600 border-purple-600"
-                  : "text-gray-600 border-transparent hover:text-purple-600"
-              }`}
-            >
-              {aba.label}
-            </button>
-          ))}
+        <div className="text-center sm:text-left flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            {dadosRestaurante?.nome_restaurante || "Restaurante"}
+          </h1>
+          <p className="text-gray-600 mt-1 line-clamp-2">
+            {dadosRestaurante?.descricao_restaurante || "Bem-vindo! Explore nosso cardápio e faça sua reserva."}
+          </p>
+
+          {/* chips rápidos */}
+          <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
+            {dadosRestaurante?.especialidade && (
+              <span className="text-xs sm:text-sm bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 rounded-full">
+                {dadosRestaurante.especialidade}
+              </span>
+            )}
+            {dadosRestaurante?.tipos_servico?.length > 0 && (
+              <span className="text-xs sm:text-sm bg-gray-50 text-gray-700 border border-gray-200 px-3 py-1 rounded-full">
+                {dadosRestaurante.tipos_servico.join(" • ")}
+              </span>
+            )}
+            {dadosRestaurante?.telefone_restaurante && (
+              <span className="text-xs sm:text-sm bg-gray-50 text-gray-700 border border-gray-200 px-3 py-1 rounded-full">
+                {dadosRestaurante.telefone_restaurante}
+              </span>
+            )}
+              <span className="text-xs sm:text-sm bg-green-200 text-gray-700 border border-gray-200 px-3 py-1 rounded-full">
+                Avalicao: 4.8
+              </span>
+          </div>
         </div>
 
-        <div className="text-gray-700 flex-1 overflow-auto transition-all duration-300 max-h-[50vh]">
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 transition"
+        >
+          Voltar
+        </button>
+      </div>
+    </div>
+  </header>
 
-          {abaAtiva === "informacoes" && dadosRestaurante && (
-            <section className="flex flex-col sm:flex-row gap-6 min-h-[50vh]">
-              <div className="flex-1 flex flex-col gap-4 bg-purple-50 p-4 rounded-lg shadow-sm">
-                <h3 className="text-lg font-semibold text-purple-700 mb-2">Informações da Casa</h3>
+  {/* ABAS */}
+  <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-6">
+    <nav
+      className="bg-white/90 backdrop-blur-md rounded-2xl shadow-md p-2 flex flex-wrap gap-2 sticky top-0 z-10"
+      role="tablist"
+      aria-label="Seções do restaurante"
+    >
+      {[
+        { id: "informacoes", label: "Informações" },
+        { id: "cardapio", label: "Cardápio" },
+        { id: "horarios", label: "Horários" },
+        { id: "mesas", label: "Mesas" },
+        { id: "reserva", label: "Reserva" },
+        { id: "avaliacao", label: "Avaliações" }
+      ].map((aba) => {
+        const active = abaAtiva === aba.id;
+        return (
+          <button
+            key={aba.id}
+            role="tab"
+            aria-selected={active}
+            aria-controls={`panel-${aba.id}`}
+            onClick={() => setAbaAtiva(aba.id)}
+            className={[
+              "px-3 sm:px-4 py-2 rounded-xl text-sm sm:text-base transition",
+              active
+                ? "bg-purple-600 text-white shadow"
+                : "text-gray-700 hover:bg-purple-50",
+            ].join(" ")}
+          >
+            {aba.label}
+          </button>
+        );
+      })}
+    </nav>
 
-                <div className="mb-2">
-                  <p className="font-medium text-gray-700 mb-1">Descrição:</p>
-                  <p className="text-gray-600 text-sm line-clamp-5 overflow-hidden">
-                    {dadosRestaurante.descricao_restaurante}
-                  </p>
+    {/* CONTEÚDO */}
+    <section className="mt-4">
+      <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6">
+        {/* INFORMACOES */}
+        {abaAtiva === "informacoes" && dadosRestaurante && (
+          <div id="panel-informacoes" role="tabpanel" className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-purple-700">Informações da Casa</h3>
+
+              <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
+                <p className="font-medium text-gray-800 mb-1">Descrição</p>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  {dadosRestaurante.descricao_restaurante}
+                </p>
+              </div>
+
+              <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <dt className="text-xs uppercase tracking-wide text-gray-500">Especialidade</dt>
+                  <dd className="text-gray-800 font-medium">{dadosRestaurante.especialidade}</dd>
                 </div>
-                <p><span className="font-medium text-gray-700">Especialidade:</span> {dadosRestaurante.especialidade}</p>
-                <p><span className="font-medium text-gray-700">Meios de pagamento:</span> {dadosRestaurante.meios_pagamento.join(", ")}</p>
-                <p><span className="font-medium text-gray-700">Tipo de serviço:</span> {dadosRestaurante.tipos_servico.join(", ")}</p>
-                <p><span className="font-medium text-gray-700">Telefone:</span> {dadosRestaurante.telefone_restaurante}</p>
-              </div>
-              <div className="flex-1 flex flex-col gap-3 bg-purple-50 p-4 rounded-lg shadow-sm">
-                <h3 className="text-lg font-semibold text-purple-700 mb-2">Endereço</h3>
-                <p><span className="font-medium text-gray-700">Rua:</span> {dadosRestaurante.endereco_rua}</p>
-                <p><span className="font-medium text-gray-700">Número:</span> {dadosRestaurante.endereco_num}</p>
-                <p><span className="font-medium text-gray-700">Bairro:</span> {dadosRestaurante.endereco_bairro}</p>
-                <p><span className="font-medium text-gray-700">Cidade:</span> {dadosRestaurante.endereco_cidade}</p>
-                <p><span className="font-medium text-gray-700">Estado:</span> {dadosRestaurante.endereco_estado}</p>
-                <p><span className="font-medium text-gray-700">CEP:</span> {dadosRestaurante.endereco_cep}</p>
-              </div>
-            </section>
-          )}
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <dt className="text-xs uppercase tracking-wide text-gray-500">Meios de pagamento</dt>
+                  <dd className="text-gray-800">{dadosRestaurante.meios_pagamento.join(", ")}</dd>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <dt className="text-xs uppercase tracking-wide text-gray-500">Tipos de serviço</dt>
+                  <dd className="text-gray-800">{dadosRestaurante.tipos_servico.join(", ")}</dd>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <dt className="text-xs uppercase tracking-wide text-gray-500">Telefone</dt>
+                  <dd className="text-gray-800">{dadosRestaurante.telefone_restaurante}</dd>
+                </div>
+              </dl>
+            </div>
 
-          {abaAtiva === "cardapio" && (
-            <section className="flex flex-col gap-4 max-h-[50vh] min-h-[50vh]">
-              <h2 className="text-lg font-semibold ">Cardápio</h2>
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-purple-700">Endereço</h3>
+              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <dt className="text-xs uppercase tracking-wide text-gray-500">Rua</dt>
+                    <dd className="text-gray-800">{dadosRestaurante.endereco_rua}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs uppercase tracking-wide text-gray-500">Número</dt>
+                    <dd className="text-gray-800">{dadosRestaurante.endereco_num}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs uppercase tracking-wide text-gray-500">Bairro</dt>
+                    <dd className="text-gray-800">{dadosRestaurante.endereco_bairro}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs uppercase tracking-wide text-gray-500">Cidade</dt>
+                    <dd className="text-gray-800">{dadosRestaurante.endereco_cidade}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs uppercase tracking-wide text-gray-500">Estado</dt>
+                    <dd className="text-gray-800">{dadosRestaurante.endereco_estado}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs uppercase tracking-wide text-gray-500">CEP</dt>
+                    <dd className="text-gray-800">{dadosRestaurante.endereco_cep}</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* CARDAPIO */}
+        {abaAtiva === "cardapio" && (
+          <div id="panel-cardapio" role="tabpanel" className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <h2 className="text-lg font-semibold">Cardápio</h2>
 
               {listaCardapios.length > 0 ? (
-                <div className="mb-4 flex gap-5">
+                <div className="flex flex-1 items-center gap-3">
                   <select
                     value={cardapioSelecionado}
                     onChange={(e) => setCardapioSelecionado(e.target.value)}
-                    className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none"
+                    className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-400 outline-none w-full sm:w-auto"
                   >
                     {listaCardapios.map((cardapio) => (
                       <option key={cardapio.id} value={cardapio.id}>
@@ -199,48 +301,62 @@ export default function RestauranteDetalhes() {
                     ))}
                   </select>
 
-                  <p className="text-gray-600 text-sm italic mt-3 max-w-xs truncate">
+                  <p className="text-gray-600 text-sm italic truncate">
                     {listaCardapios.find((c) => String(c.id) === cardapioSelecionado)?.descricao_cardapio || ""}
                   </p>
                 </div>
               ) : (
-                <p className="text-gray-400 italic">Nenhum cardápio encontrado</p>
+                <span className="text-gray-400 italic">Nenhum cardápio encontrado</span>
               )}
+            </div>
 
-              <div className="flex gap-4 mb-4">
+            <div className="border-t pt-4">
+              <div className="flex gap-4 overflow-x-auto no-scrollbar">
                 {sessoes.length > 0 ? (
-                  sessoes.map((sessao) => (
-                    <button
-                      key={sessao.id}
-                      onClick={() => setSessaoAtiva(sessao.id)}
-                      className={`pb-2 px-3 transition-colors duration-300 ${
-                        sessaoAtiva === sessao.id
-                          ? "border-b-2 border-purple-600 text-gray-800 font-semibold"
-                          : "text-gray-500 hover:text-gray-700"
-                      }`}
-                    >
-                      {sessao.nome_sessao}
-                    </button>
-                  ))
+                  sessoes.map((sessao) => {
+                    const active = sessaoAtiva === sessao.id;
+                    return (
+                      <button
+                        key={sessao.id}
+                        onClick={() => setSessaoAtiva(sessao.id)}
+                        className={[
+                          "px-3 py-2 rounded-xl whitespace-nowrap transition",
+                          active
+                            ? "bg-purple-600 text-white shadow"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200",
+                        ].join(" ")}
+                      >
+                        {sessao.nome_sessao}
+                      </button>
+                    );
+                  })
                 ) : (
                   <span className="text-gray-400 italic">Nenhuma sessão encontrada</span>
                 )}
               </div>
 
-              <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full max-h-[50vh] overflow-y-auto">
+              <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {itens.length > 0 ? (
                   itens.map((item) => (
-                    <li key={item.id} className="border rounded-lg p-3 flex flex-col items-center gap-3">
+                    <li
+                      key={item.id}
+                      className="border rounded-2xl p-3 hover:shadow-lg transition bg-white"
+                    >
                       {item.imagem && (
                         <img
                           src={item.imagem}
                           alt={item.nome_item}
-                          className="w-24 h-24 rounded-md object-cover"
+                          className="w-full h-36 rounded-xl object-cover"
                         />
                       )}
-                      <span className="font-semibold text-center">{item.nome_item}</span>
-                      <span className="text-sm text-gray-600 text-center">{item.descricao_item}</span>
-                      <span className="font-bold text-purple-600">R$ {Number(item.preco_item).toFixed(2)}</span>
+                      <div className="mt-3">
+                        <div className="font-semibold text-gray-900">{item.nome_item}</div>
+                        <div className="text-sm text-gray-600 line-clamp-2">{item.descricao_item}</div>
+                        <div className="mt-2 font-bold text-purple-700">
+                          R$ {Number(item.preco_item).toFixed(2)}
+                        </div>
+                      </div>
+
                     </li>
                   ))
                 ) : (
@@ -249,86 +365,204 @@ export default function RestauranteDetalhes() {
                   </li>
                 )}
               </ul>
-            </section>
-          )}
+            </div>
+          </div>
+        )}
 
+        {/* HORARIOS */}
+        {abaAtiva === "horarios" && (
+          <div id="panel-horarios" role="tabpanel" className="space-y-3">
+            <h2 className="text-lg font-semibold">Horários</h2>
+            <p className="text-gray-600">Aqui serão mostrados os horários de funcionamento.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="bg-gray-50 rounded-xl p-4">
+                <p className="text-sm text-gray-600">Seg a Sex</p>
+                <p className="font-semibold text-gray-900">11:30–15:00 • 18:30–23:00</p>
+              </div>
+              <div className="bg-gray-50 rounded-xl p-4">
+                <p className="text-sm text-gray-600">Sáb e Dom</p>
+                <p className="font-semibold text-gray-900">12:00–23:00</p>
+              </div>
+            </div>
+          </div>
+        )}
 
-          {abaAtiva === "horarios" && (
-            <section className="min-h-[50vh]">
-              <h2 className="text-lg font-semibold mb-2">Horários</h2>
-              <p>Aqui serão mostrados os horários de funcionamento.</p>
-            </section>
-          )}
-
-          {abaAtiva === "mesas" && (
-            <section className="min-h-[50vh]">
-              <h2 className="text-lg font-semibold mb-2">Mesas</h2>
-              <p>Aqui serão mostrados as mesas disponiveis.</p>
-            </section>
-          )}
-
-          {abaAtiva === "reserva" && (
-            <section className="flex flex-col gap-6 min-h-[50vh]">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex flex-col flex-1">
-                  <label className="text-sm font-medium mb-1">Data:</label>
-                  <input
-                    type="date"
-                    className="border rounded-lg p-2 focus:ring-2 focus:ring-purple-400"
-                  />
+        {/* MESAS */}
+        {abaAtiva === "mesas" && (
+          <div id="panel-mesas" role="tabpanel" className="space-y-3">
+            <h2 className="text-lg font-semibold">Mesas</h2>
+            <p className="text-gray-600">Aqui serão mostradas as mesas disponíveis.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {/* placeholders visuais */}
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-20 rounded-xl border border-gray-200 bg-gray-50 grid place-content-center text-gray-500"
+                >
+                  Mesa #{i + 1}
                 </div>
-                <div className="flex flex-col flex-1">
-                  <label className="text-sm font-medium mb-1">Hora:</label>
-                  <input
-                    type="time"
-                    className="border rounded-lg p-2 focus:ring-2 focus:ring-purple-400"
-                  />
+              ))}
+            </div>
+          </div>
+        )}
+
+         {abaAtiva === "avaliacao" && (
+          <div id="panel-reserva" role="tabpanel" className="space-y-6">
+            <h2 className="text-lg font-semibold">Avaliações</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Card 1 */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="https://i.pravatar.cc/100?img=12"
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Mariana Costa</h3>
+                      <p className="text-xs text-gray-500">Pedido #1029</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center mt-3 text-yellow-500">
+                    ★★★★☆
+                  </div>
+
+                  <p className="text-sm text-gray-700 mt-3">
+                    Ótimo atendimento, comida chegou quente e muito saborosa!
+                  </p>
+                </div>
+
+                {/* Card 2 */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="https://i.pravatar.cc/100?img=3"
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                    <div>
+                      <h3 className="font-semibold text-gray-900">João Almeida</h3>
+                      <p className="text-xs text-gray-500">Pedido #984</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center mt-3 text-yellow-500">
+                    ★★★★★
+                  </div>
+
+                  <p className="text-sm text-gray-700 mt-3">
+                    Atendimento excelente, voltarei com certeza.
+                  </p>
+                </div>
+
+                {/* Card 3 */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="https://i.pravatar.cc/100?img=22"
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Ana Beatriz</h3>
+                      <p className="text-xs text-gray-500">Pedido #1010</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center mt-3 text-yellow-500">
+                    ★★★★☆
+                  </div>
+
+                  <p className="text-sm text-gray-700 mt-3">
+                    A sobremesa estava incrível! Só atrasou um pouco.
+                  </p>
+                </div>
+
+                {/* Card 4 */}
+                <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="https://i.pravatar.cc/100?img=41"
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                    <div>
+                      <h3 className="font-semibold text-gray-900">Pedro Henrique</h3>
+                      <p className="text-xs text-gray-500">Pedido #990</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center mt-3 text-yellow-500">
+                    ★★★☆☆
+                  </div>
+
+                  <p className="text-sm text-gray-700 mt-3">
+                    O lanche estava bom, mas faltou um pouco mais de tempero.
+                  </p>
                 </div>
               </div>
+            </div>
+        )}
 
+        {/* RESERVA */}
+        {abaAtiva === "reserva" && (
+          <div id="panel-reserva" role="tabpanel" className="space-y-6">
+            <h2 className="text-lg font-semibold">Reserva</h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Quantidade de Pessoas:</label>
+                <label className="text-sm font-medium mb-1">Data</label>
                 <input
-                  type="number"
-                  placeholder="Quantidade de Pessoas"
-                  className="border rounded-lg p-2 focus:ring-2 focus:ring-purple-400"
+                  type="date"
+                  className="border rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 outline-none"
                 />
               </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex flex-col flex-1">
-                  <label className="text-sm font-medium mb-1">Nome do Responsável:</label>
-                  <input
-                    type="text"
-                    placeholder="Nome do Responsável"
-                    className="border rounded-lg p-2 focus:ring-2 focus:ring-purple-400"
-                  />
-                </div>
-                <div className="flex flex-col flex-1">
-                  <label className="text-sm font-medium mb-1">Telefone do Responsável:</label>
-                  <input
-                    type="text"
-                    placeholder="Telefone do Responsável"
-                    className="border rounded-lg p-2 focus:ring-2 focus:ring-purple-400"
-                  />
-                </div>
+              <div className="flex flex-col">
+                <label className="text-sm font-medium mb-1">Hora</label>
+                <input
+                  type="time"
+                  className="border rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 outline-none"
+                />
               </div>
-              <button className="w-[40%] mx-auto bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 rounded-lg transition-all">
+              <div className="flex flex-col">
+                <label className="text-sm font-medium mb-1">Quantidade de Pessoas</label>
+                <input
+                  type="number"
+                  min={1}
+                  placeholder="Ex.: 4"
+                  className="border rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 outline-none"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="text-sm font-medium mb-1">Nome do Responsável</label>
+                <input
+                  type="text"
+                  placeholder="Seu nome"
+                  className="border rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 outline-none"
+                />
+              </div>
+              <div className="flex flex-col sm:col-span-2">
+                <label className="text-sm font-medium mb-1">Telefone do Responsável</label>
+                <input
+                  type="text"
+                  placeholder="(xx) xxxxx-xxxx"
+                  className="border rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <button className="w-full sm:w-[40%] bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition">
                 Confirmar Reserva
               </button>
-            </section>
-          )}
-
-        </div>
+            </div>
+          </div>
+        )}
       </div>
+    </section>
+  </div>
 
+  <footer className="max-w-5xl mx-auto px-4 sm:px-6 py-10 text-center text-xs text-gray-500">
+    © {new Date().getFullYear()} {dadosRestaurante?.nome_restaurante || "Restaurante"} — Todos os direitos reservados
+  </footer>
+</div>
 
-      <button
-        onClick={() => router.back()}
-        className="mt-6 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition"
-      >
-        Voltar
-      </button>
-    </div>
   );
 }

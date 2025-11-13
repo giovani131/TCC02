@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ModalCriarArea } from "./ModalCriarArea";
 import { ModalEditarArea } from "./ModalEditarArea";
 import { confirmAlert } from "react-confirm-alert";
+import router from "next/router";
 export function Areas()
 {
     const [stateModal, setStateModal] = useState(false)
@@ -125,6 +126,7 @@ export function Areas()
                         <div className="mt-auto flex justify-between items-center">
                             <button
                             className={`cursor-pointer px-4 py-2 font-semibold rounded-lg shadow  bg-white text-purple-800 hover:bg-purple-100`}
+                            onClick={() => router.push(`/mesas/${item.id}`)}
                             >
                             Acessar Área
                             </button>

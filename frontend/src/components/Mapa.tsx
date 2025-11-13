@@ -14,7 +14,7 @@ type Restaurante = {
   lng: number;
 };
 
-const Mapa = () => {
+export function Mapa() {
   
   const router = useRouter()
   const [restaurantes, setRestaurantes] = useState<Restaurante[]>([]);
@@ -43,7 +43,7 @@ const Mapa = () => {
   }, []);
 
   return (
-    <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
+    <APIProvider apiKey="AIzaSyDkI6GdEVp23zFJDPN6BZYlNyj3ivPrrWI">
       <Map
         defaultZoom={12}
         defaultCenter={{ lat: -22.8431163, lng: -47.0623106 }}

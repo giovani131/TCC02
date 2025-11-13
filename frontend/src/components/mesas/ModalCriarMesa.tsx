@@ -2,49 +2,45 @@ import { GroupButtons } from "@/core/components/GroupButtons";
 import { Input } from "@/core/components/Input";
 import { ModalEscructure } from "@/core/components/ModalEstructure";
 import { Select } from "@/core/components/Select";
-import { IAreaRequest } from "@/models/Areas";
-import { createArea } from "@/services/area.services";
-import { Save, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { IMesaRequest } from "@/models/Mesa";
+import { createChair } from "@/services/mesa.services";
+import { X } from "lucide-react";
+import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 
-interface ModalCriarArea{
-    close: () => void
+interface ModalCriarMesaProps{
+    close: () => void,
+    pos_x: number
+    pos_y: number
 }
-export function ModalCriarArea({close} : ModalCriarArea)
+
+export function ModalCriarMesa({close, pos_x, pos_y} : ModalCriarMesaProps)
 {
-    const [isLoading, setIsLoading] = useState(false)
-    const { register, handleSubmit, reset, watch } = useForm<IAreaRequest>()
-    const statusValue = watch("status")
-    const width = watch("width")
-    const height = watch("height")
-    const maxMesas = (Number(width) || 0) * (Number(height) || 0)
+    const router = useRouter()
+    const { id } = router.query;
+    const { register, handleSubmit, reset, watch } = useForm<IMesaRequest>()
     const status: Record<string, number> = {
         "Ativo" : 1,
         "Inativo": 2,
         "Reforma" : 3,
         "Bloqueado": 4
     }
-
-    const onSubmit = async (data: IAreaRequest) => {
-        setIsLoading(true)
-        const res = await createArea(data)
-        setIsLoading(false)
-        console.log(data)
+    const onSubmit = async (data: IMesaRequest) => {
+        data.area_id = id?.toString()!
+        const res = await createChair(data)
         if(res.ok)
             toast.success(res.message)
         else
             toast.error(res.message)
-        reset()
     }
     return(
-        <>
+                <>
             <ModalEscructure 
                 content={
                     <div className="bg-white/50 min-w-[50%] min-h-[50%] rounded-3xl p-3 border-[2px] border-white/30">
                         <div className="flex flex-row justify-between p-2">
-                            <span className="text-black text-[20px] font-bold">Criar Área</span>
+                            <span className="text-black text-[20px] font-bold">Criar Mesa</span>
                             <X 
                                 className="cursor-pointer" 
                                 onClick={close} 
@@ -52,9 +48,9 @@ export function ModalCriarArea({close} : ModalCriarArea)
                         </div>
                         <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
                             <Input 
-                                label={"Nome da Área"} 
-                                placeholder="Ex: Área Externa" 
-                                register={register("nome_area")} 
+                                label={"Codigo da Mesa"} 
+                                placeholder="Ex: M12"  
+                                register={register("codigo_mesa")}
                             />
                             <Select 
                                 label={"Status"} 
@@ -62,27 +58,28 @@ export function ModalCriarArea({close} : ModalCriarArea)
                                 register={register("status")}
                             />
                             <Input 
-                                label={"Quantidade de espacos na horizontal"} 
-                                placeholder="Ex: 10" 
+                                label={"Capacidade Maxima"} 
+                                placeholder="Ex: 4" 
                                 type="number" 
-                                register={register("width")}
+                                register={register("capacidade_maxima")}
                             />
                             <Input 
-                                label={"Quantidade de espacos na vertical"} 
+                                label={"Posicao horizontal"} 
                                 placeholder="Ex: 10" 
-                                type="number" 
-                                register={register("height")}
+                                type="number"
+                                register={register("pos_x")}
+                                value={pos_x} 
+                                disabled={true}
                             />
                             <Input 
-                                label={"Capacidade Maxima de Mesas"} 
+                                label={"Posicao vertical"} 
                                 placeholder="Ex: 10" 
                                 type="number" 
-                                register={register("capacidade_mesa")}
-                                value={maxMesas}
+                                register={register("pos_y")}
+                                value={pos_y}
                                 disabled={true}
                             />
                             <GroupButtons 
-                                isLoading={isLoading}
                                 cancelOnClick={close} 
                             />
                         </form>

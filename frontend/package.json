@@ -15,6 +15,7 @@
     "next": "15.5.2",
     "react": "19.1.0",
     "react-confirm-alert": "^3.0.6",
+    "react-country-flag": "^3.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.66.0",
     "react-spinner": "^0.2.7",
