@@ -33,13 +33,13 @@ async function cadastrarEstabelecimento(req, res) {
 async function editarEstabelecimento(req, res) {
   try {
     const id = req.user.id; 
-    const { nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, senha } = req.body;
+    const { nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel } = req.body;
 
-    if (!nome_restaurante || !nome_responsavel || !cpf_responsavel || !cnpj || !telefone_responsavel || !email_responsavel || !senha) {
+    if (!nome_restaurante || !nome_responsavel || !cpf_responsavel || !cnpj || !telefone_responsavel || !email_responsavel) {
       return res.status(400).json({ message: 'Preencha todos os campos obrigatórios!' });
     }
 
-    const estabelecimentoAtualizado = await estabelecimentoServices.editarEstabelecimento(id, { nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, senha});
+    const estabelecimentoAtualizado = await estabelecimentoServices.editarEstabelecimento(id, { nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel});
 
     res.status(200).json({
       message: 'Estabelecimento atualizado com sucesso!',
@@ -158,7 +158,6 @@ async function alterarStatus(req, res) {
   try {
     const userId = req.user.id;
     const {status} = req.body
-    console.log('entrou')
     const statusAtualizado = await estabelecimentoServices.alterarStatus(status, userId);
 
     if (!statusAtualizado) {
@@ -175,7 +174,7 @@ async function alterarStatus(req, res) {
 
 async function getEstabelecimentoDadosCompletos(req, res) {
   try {
-    const {id_estabelecimento} = req.params 
+    const id_estabelecimento = req.user.id 
     const estabelecimento = await estabelecimentoServices.getEstabelecimentoDadosCompletos(id_estabelecimento);
 
     if (!estabelecimento) {
@@ -189,5 +188,80 @@ async function getEstabelecimentoDadosCompletos(req, res) {
   }
 }
 
+async function editarEstabelecimentoEndereco(req, res) {
+  try {
+    const id = req.user.id;
+
+    const { endereco_cep,endereco_estado,endereco_cidade,endereco_bairro,endereco_rua,endereco_num} = req.body;
+
+    if (!endereco_cep ||!endereco_estado ||!endereco_cidade ||!endereco_bairro ||!endereco_rua ||!endereco_num) {
+      return res.status(400).json({
+        message: "Preencha todos os campos de endereço!"
+      });
+    }
+
+    const enderecoAtualizado = await estabelecimentoServices.editarEstabelecimentoEndereco(id, {endereco_cep,endereco_estado,endereco_cidade,endereco_bairro,endereco_rua,endereco_num});
+
+    res.status(200).json({
+      message: "Endereço atualizado com sucesso!",
+      user: {
+        endereco_cep: enderecoAtualizado.endereco_cep,
+        endereco_estado: enderecoAtualizado.endereco_estado,
+        endereco_cidade: enderecoAtualizado.endereco_cidade,
+        endereco_bairro: enderecoAtualizado.endereco_bairro,
+        endereco_rua: enderecoAtualizado.endereco_rua,
+        endereco_num: enderecoAtualizado.endereco_num
+      }
+    });
+
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+async function editarEstabelecimentoAdicional(req, res) {
+  try {
+    const id = req.user.id;
+
+    const {
+      telefone_restaurante,
+      especialidade,
+      descricao_restaurante,
+      meios_pagamento,
+      tipos_servico
+    } = req.body;
+
+    if (!telefone_restaurante || !especialidade || !descricao_restaurante) {
+      return res.status(400).json({ message: "Preencha todos os campos obrigatórios!" });
+    }
+
+    const estabelecimentoAtualizado =
+      await estabelecimentoServices.editarEstabelecimentoAdicional(id, {
+        telefone_restaurante,
+        especialidade,
+        descricao_restaurante,
+        meios_pagamento,
+        tipos_servico
+      });
+
+    return res.status(200).json({
+      message: "Informações adicionais atualizadas com sucesso!",
+      user: {
+        telefone_restaurante: estabelecimentoAtualizado.telefone_restaurante,
+        especialidade: estabelecimentoAtualizado.especialidade,
+        descricao_restaurante: estabelecimentoAtualizado.descricao_restaurante,
+        meios_pagamento: estabelecimentoAtualizado.meios_pagamento,
+        tipos_servico: estabelecimentoAtualizado.tipos_servico
+      }
+    });
+
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+
+
 module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento,
-   getEstabelecimentoLogadoDadosIniciais, completarDados, alterarStatus, getEstabelecimentoDadosCompletos}
+   getEstabelecimentoLogadoDadosIniciais, completarDados, alterarStatus, getEstabelecimentoDadosCompletos, 
+   editarEstabelecimentoEndereco, editarEstabelecimentoAdicional}

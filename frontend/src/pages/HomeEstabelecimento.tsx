@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Store, User, IdCard, Building2, Mail, Phone,Edit2, Clock, UtensilsCrossed, ListChecks, Settings, BookOpen, Trash2 } from "lucide-react";
+import { Store, User, IdCard, Building2, Mail, Phone,Edit2, Clock, UtensilsCrossed, ListChecks, Settings, BookOpen, Trash2, FileText, MapPin, Navigation, Home, Landmark, Hash } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Cardapio from "@/components/cardapio/Cardapio";
 import Horarios from "@/components/Horarios";
 import ModalApagarConta from "@/components/ModelApagarConta";
-import ModalEditarEstabelecimento from "@/components/ModalEditarEstabelecimento";
+import ModalEditarEstabelecimentoInicial from "@/components/ModalEditarEstabelecimentoInicial";
+import ModalEditarEstabelecimentoEndereco from "@/components/ModalEditarEstabelecimentoEndereco";
+import ModalEditarEstabelecimentoInfosAdicionais from "@/components/ModalEditarEstabelecimentoInfosAdicionais";
 import { Areas } from "../components/areas/Areas";
 
-type Estabelecimento = {
+type EstabelecimentoDadosIniciais = {
   nome_restaurante: string;
   nome_responsavel: string;
   cpf_responsavel: string;
@@ -17,19 +19,42 @@ type Estabelecimento = {
   email_responsavel: string;
 };
 
+type EstabelecimentoDadosEndereco = {
+  endereco_cep: string; 
+  endereco_estado: string;
+  endereco_cidade: string;
+  endereco_bairro: string;
+  endereco_rua: string;
+  endereco_num: string;
+}
+
+type EstabelecimentoDadosAdicional = {
+  telefone_restaurante: string;
+  especialidade: string;
+  descricao_restaurante: string;
+  meios_pagamento: string[];
+  tipos_servico: string[];
+}
+
 export default function HomeEstabelecimento() {
   const router = useRouter();
   
-  const [estabelecimento, setEstabelecimento] = useState<Estabelecimento | null>(null);
+  const [estabelecimentoInicial, setEstabelecimentoInicial] = useState<EstabelecimentoDadosIniciais | null>(null);
+  const [estabelecimentoEndereco, setEstabelecimentoEndereco] = useState<EstabelecimentoDadosEndereco | null>(null);
+  const [estabelecimentoAdicional, setEstabelecimentoAdicional] = useState<EstabelecimentoDadosAdicional | null>(null);
   const [activeTab, setActiveTab] = useState("reservasPendentes");
+  const [activeInfoTab, setActiveInfoTab] = useState("iniciais");
   const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
-  const [isModalEditOpen, setIsModalEditOpen] = useState(false);
+  const [isModalEditInicialOpen, setIsModalEditInicialOpen] = useState(false);
+  const [isModalEditEnderecoOpen, setIsModalEditEnderecoOpen] = useState(false);
+  const [isModalEditAdicionalOpen, setIsModalEditAdicionalOpen] = useState(false);
+
 
   const [dadosCompletos, setDadosCompletos] = useState<boolean | null>(null);
   const[status, setStatus] = useState<Number | null>(null);
 
 
-  // Buscar dados do restaurante
+  // Buscar dados iniciais do restaurante
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -45,7 +70,7 @@ export default function HomeEstabelecimento() {
         const data = await res.json();
         if (res.ok){ 
           console.log(data)
-          setEstabelecimento(data);
+          setEstabelecimentoInicial(data);
           setDadosCompletos(data.dados_completos);
           setStatus(data.status);
         }
@@ -58,15 +83,63 @@ export default function HomeEstabelecimento() {
     fetchEstabelecimento();
   }, [router]);
 
+  useEffect(() => {
+    if (!dadosCompletos) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/");
+      return;
+    }
+
+    const fetchEstabelecimento = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:5500/api/estabelecimentoLogadoDadosCompletos",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data = await res.json();
+        if (res.ok) {
+          console.log(data);
+
+          setEstabelecimentoEndereco({
+            endereco_cep: data.endereco_cep,
+            endereco_estado: data.endereco_estado,
+            endereco_cidade: data.endereco_cidade,
+            endereco_bairro: data.endereco_bairro,
+            endereco_rua: data.endereco_rua,
+            endereco_num: data.endereco_num,
+          });
+
+          setEstabelecimentoAdicional({
+            telefone_restaurante: data.telefone_restaurante,
+            especialidade: data.especialidade,
+            descricao_restaurante: data.descricao_restaurante,
+            meios_pagamento: data.meios_pagamento,
+            tipos_servico: data.tipos_servico,
+          });
+        } else {
+          router.push("/");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchEstabelecimento();
+  }, [dadosCompletos, router]);
+
+
   // Atualizar estabelecimento
-  const handleUpdateEstabelecimento = async (formData: {
+  const handleUpdateEstabelecimentoInicial = async (formData: {
     nome_restaurante: string;
     nome_responsavel: string;
     cpf_responsavel: string;
     cnpj: string;
     telefone_responsavel: string;
     email_responsavel: string;
-    senha: string;
   }) => {
     const token = localStorage.getItem("token");
     try {
@@ -82,8 +155,7 @@ export default function HomeEstabelecimento() {
       const data = await res.json();
       console.log(data)
       if (res.ok) {
-        // Atualiza o estado do estabelecimento no front
-        setEstabelecimento({
+        setEstabelecimentoInicial({
           nome_restaurante: data.user.nome_restaurante,
           nome_responsavel: data.user.nome_responsavel,
           cpf_responsavel: data.user.cpf_responsavel,
@@ -92,7 +164,7 @@ export default function HomeEstabelecimento() {
           email_responsavel: data.user.email_responsavel,
         });
         alert("Dados do estabelecimento atualizados com sucesso!");
-        setIsModalEditOpen(false);
+        setIsModalEditInicialOpen(false);
       } else {
         alert(data.message || "Erro ao atualizar os dados do estabelecimento");
       }
@@ -101,8 +173,6 @@ export default function HomeEstabelecimento() {
       alert(err);
     }
   };
-
-
 
   // Apagar estabelecimento
   const handleDeleteEstabelecimento = async (senha: string) => {
@@ -131,7 +201,6 @@ export default function HomeEstabelecimento() {
     }
   }; 
 
-
   const handleAlterarStatus = async () => {
   if (status === null) return;
 
@@ -149,7 +218,7 @@ export default function HomeEstabelecimento() {
     const data = await res.json();
 
     if (res.ok) {
-      setStatus(data.status); // atualiza o status no front
+      setStatus(data.status);
     } else {
       alert(data.message || "Erro ao alterar status");
     }
@@ -157,6 +226,97 @@ export default function HomeEstabelecimento() {
     console.error(err);
     alert("Erro ao alterar status");
   }
+  };
+
+  const handleUpdateEstabelecimentoEndereco = async (formData: {
+    endereco_cep: string;
+    endereco_estado: string;
+    endereco_cidade: string;
+    endereco_bairro: string;
+    endereco_rua: string;
+    endereco_num: string;
+  }) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch("http://localhost:5500/api/editarEstabelecimentoEndereco", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      console.log(data);
+
+      if (res.ok) {
+        setEstabelecimentoEndereco({
+          endereco_cep: data.user.endereco_cep,
+          endereco_estado: data.user.endereco_estado,
+          endereco_cidade: data.user.endereco_cidade,
+          endereco_bairro: data.user.endereco_bairro,
+          endereco_rua: data.user.endereco_rua,
+          endereco_num: data.user.endereco_num,
+        });
+
+        alert("Endereço atualizado com sucesso!");
+        setIsModalEditEnderecoOpen(false);
+
+      } else {
+        alert(data.message || "Erro ao atualizar o endereço do estabelecimento");
+      }
+
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao atualizar o endereço.");
+    }
+  };
+
+  const handleUpdateEstabelecimentoAdicional = async (formData: {
+    telefone_restaurante: string;
+    especialidade: string;
+    descricao_restaurante: string;
+    meios_pagamento: string[];
+    tipos_servico: string[];
+  }) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        "http://localhost:5500/api/editarEstabelecimentoAdicional",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const data = await res.json();
+      console.log(data);
+
+      if (res.ok) {
+        setEstabelecimentoAdicional({
+          telefone_restaurante: data.user.telefone_restaurante,
+          especialidade: data.user.especialidade,
+          descricao_restaurante: data.user.descricao_restaurante,
+          meios_pagamento: data.user.meios_pagamento,
+          tipos_servico: data.user.tipos_servico,
+        });
+
+        alert("Informações adicionais atualizadas com sucesso!");
+        setIsModalEditAdicionalOpen(false);
+      } else {
+        alert(data.message || "Erro ao atualizar informações adicionais");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao atualizar informações adicionais.");
+    }
   };
 
 
@@ -177,7 +337,7 @@ export default function HomeEstabelecimento() {
 
             {/* Nome */}
             <h3 className="mt-3 font-bold text-gray-800 text-lg">
-              {estabelecimento?.nome_restaurante || "Carregando..."}
+              {estabelecimentoInicial?.nome_restaurante || "Carregando..."}
             </h3>
 
             {/* Status */}
@@ -192,32 +352,224 @@ export default function HomeEstabelecimento() {
             </p>
 
             {/* Informações detalhadas */}
-            <div className="mt-4 space-y-3 text-left">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <User className="w-4 h-4 text-purple-500" />
-                <span className="font-medium">Responsável:</span>
-                <span>{estabelecimento?.nome_responsavel}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <IdCard className="w-4 h-4 text-purple-500" />
-                <span className="font-medium">CPF:</span>
-                <span>{estabelecimento?.cpf_responsavel}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Building2 className="w-4 h-4 text-purple-500" />
-                <span className="font-medium">CNPJ:</span>
-                <span>{estabelecimento?.cnpj}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Mail className="w-4 h-4 text-purple-500" />
-                <span className="font-medium">Email:</span>
-                <span>{estabelecimento?.email_responsavel}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Phone className="w-4 h-4 text-purple-500" />
-                <span className="font-medium">Telefone:</span>
-                <span>{estabelecimento?.telefone_responsavel}</span>
-              </div>
+            <div className="mt-4">
+
+              {dadosCompletos ? (
+                <>
+                  {/* Abas */}
+                  <div className="flex gap-2 mb-3">
+                    <button
+                      onClick={() => setActiveInfoTab("iniciais")}
+                      className={`px-2 py-1 text-sm font-medium transition-colors ${
+                        activeInfoTab === "iniciais"
+                          ? "text-purple-600 border-b-2 border-purple-500"
+                          : "text-gray-700 hover:text-purple-500"
+                      }`}
+                    >
+                      <User className="w-4 h-4 inline mr-1 text-purple-500" />
+                      Dados do Responsável
+                    </button>
+
+                    <button
+                      onClick={() => setActiveInfoTab("endereco")}
+                      className={`px-2 py-1 text-sm font-medium transition-colors ${
+                        activeInfoTab === "endereco"
+                          ? "text-purple-600 border-b-2 border-purple-500"
+                          : "text-gray-700 hover:text-purple-500"
+                      }`}
+                    >
+                      <MapPin className="w-4 h-4 inline mr-1 text-purple-500" />
+                      Endereço
+                    </button>
+
+                    <button
+                      onClick={() => setActiveInfoTab("extras")}
+                      className={`px-2 py-1 text-sm font-medium transition-colors ${
+                        activeInfoTab === "extras"
+                          ? "text-purple-600 border-b-2 border-purple-500"
+                          : "text-gray-700 hover:text-purple-500"
+                      }`}
+                    >
+                      <Settings className="w-4 h-4 inline mr-1 text-purple-500" />
+                      Informações Adicionais
+                    </button>
+                  </div>
+
+                  {/* Conteúdo das Abas */}
+                  <div className="space-y-3 text-left text-gray-700 text-sm min-h-[300px]">
+                    {/* INICIAIS */}
+                    {activeInfoTab === "iniciais" && (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Responsável:</span>
+                          <span>{estabelecimentoInicial?.nome_responsavel}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <IdCard className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">CPF:</span>
+                          <span>{estabelecimentoInicial?.cpf_responsavel}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">CNPJ:</span>
+                          <span>{estabelecimentoInicial?.cnpj}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Email:</span>
+                          <span>{estabelecimentoInicial?.email_responsavel}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Telefone:</span>
+                          <span>{estabelecimentoInicial?.telefone_responsavel}</span>
+                        </div>
+
+                        {/* Botão de edição da aba inicial */}
+                        <button
+                          className="mt-3 text-purple-600 text-sm font-medium flex items-center gap-1 hover:text-purple-800"
+                          onClick={() => setIsModalEditInicialOpen(true)}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                          Editar Dados do Responsável
+                        </button>
+                      </>
+                    )}
+
+                    {/* ENDEREÇO */}
+                    {activeInfoTab === "endereco" && (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">CEP:</span>
+                          <span>{estabelecimentoEndereco?.endereco_cep}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Navigation className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Estado:</span>
+                          <span>{estabelecimentoEndereco?.endereco_estado}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Cidade:</span>
+                          <span>{estabelecimentoEndereco?.endereco_cidade}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Home className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Bairro:</span>
+                          <span>{estabelecimentoEndereco?.endereco_bairro}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Landmark className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Rua:</span>
+                          <span>{estabelecimentoEndereco?.endereco_rua}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Hash className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Número:</span>
+                          <span>{estabelecimentoEndereco?.endereco_num}</span>
+                        </div>
+
+                        {/* Botão de edição da aba endereço */}
+                        <button
+                          className="mt-3 text-purple-600 text-sm font-medium flex items-center gap-1 hover:text-purple-800"
+                          onClick={() => setIsModalEditEnderecoOpen(true)}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                          Editar Endereço
+                        </button>
+                      </>
+                    )}
+
+                    {/* INFORMAÇÕES EXTRAS */}
+                    {activeInfoTab === "extras" && (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Telefone do restaurante:</span>
+                          <span>{estabelecimentoAdicional?.telefone_restaurante}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <UtensilsCrossed className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Especialidade:</span>
+                          <span>{estabelecimentoAdicional?.especialidade}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-purple-500" />
+                          <span className="font-medium">Descrição:</span>
+                          <span>{estabelecimentoAdicional?.descricao_restaurante}</span>
+                        </div>
+
+                        <div className="mt-2">
+                          <h3 className="font-semibold text-gray-800">Meios de Pagamento</h3>
+                          <ul className="list-disc ml-5 text-gray-700 text-sm">
+                            {estabelecimentoAdicional?.meios_pagamento?.map((item, index) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="mt-4">
+                          <h3 className="font-semibold text-gray-800">Tipos de Serviço</h3>
+                          <ul className="list-disc ml-5 text-gray-700 text-sm">
+                            {estabelecimentoAdicional?.tipos_servico?.map((item, index) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {/* Botão de edição da aba extras */}
+                        <button
+                          className="mt-3 text-purple-600 text-sm font-medium flex items-center gap-1 hover:text-purple-800"
+                          onClick={() => setIsModalEditAdicionalOpen(true)}
+                        >
+                          <Edit2 className="w-4 h-4" />
+                          Editar Informações Adicionais
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </>
+              ) : (
+                // Se não tem dados completos, mostra apenas os iniciais com botão
+                <div className="space-y-3 text-left text-gray-700 text-sm min-h-[300px]">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-purple-500" />
+                    <span className="font-medium">Responsável:</span>
+                    <span>{estabelecimentoInicial?.nome_responsavel}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <IdCard className="w-4 h-4 text-purple-500" />
+                    <span className="font-medium">CPF:</span>
+                    <span>{estabelecimentoInicial?.cpf_responsavel}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-purple-500" />
+                    <span className="font-medium">CNPJ:</span>
+                    <span>{estabelecimentoInicial?.cnpj}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-purple-500" />
+                    <span className="font-medium">Email:</span>
+                    <span>{estabelecimentoInicial?.email_responsavel}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-purple-500" />
+                    <span className="font-medium">Telefone:</span>
+                    <span>{estabelecimentoInicial?.telefone_responsavel}</span>
+                  </div>
+
+                  {/* Botão de edição da aba inicial mesmo sem dados completos */}
+                  <button
+                    className="mt-3 text-purple-600 text-sm font-medium flex items-center gap-1 hover:text-purple-800"
+                    onClick={() => setIsModalEditInicialOpen(true)}
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    Editar Dados do Responsável
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -237,17 +589,6 @@ export default function HomeEstabelecimento() {
                 {status === 1 ? "Desativar" : "Ativar"}
               </button>
             )}
-
-
-            <button
-              className="w-4/5 max-w-[220px] border-2 border-purple-500 text-purple-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
-                        transition transform duration-200 ease-out
-                        hover:bg-purple-50 hover:scale-105 hover:shadow-md active:scale-95"
-              onClick={() => setIsModalEditOpen(true)}
-            >
-              <Edit2 className="w-5 h-5" />
-              Editar Dados
-            </button>
 
             <button
               className="w-4/5 max-w-[220px] border-2 border-red-500 text-red-600 font-medium rounded-lg py-2 flex items-center justify-center gap-2
@@ -342,12 +683,26 @@ export default function HomeEstabelecimento() {
         </div>
       </main>
 
-      <ModalEditarEstabelecimento
-        isOpen={isModalEditOpen}
-        onClose={() => setIsModalEditOpen(false)}
-        estabelecimento={estabelecimento}
-        onSave={handleUpdateEstabelecimento}
-      />      
+      <ModalEditarEstabelecimentoInicial
+        isOpen={isModalEditInicialOpen}
+        onClose={() => setIsModalEditInicialOpen(false)}
+        estabelecimento={estabelecimentoInicial}
+        onSave={handleUpdateEstabelecimentoInicial}
+      />  
+
+      <ModalEditarEstabelecimentoEndereco
+        isOpen={isModalEditEnderecoOpen}
+        onClose={() => setIsModalEditEnderecoOpen(false)}
+        endereco={estabelecimentoEndereco}
+        onSave={handleUpdateEstabelecimentoEndereco}
+      />
+
+      <ModalEditarEstabelecimentoInfosAdicionais
+        isOpen={isModalEditAdicionalOpen}
+        onClose={() => setIsModalEditAdicionalOpen(false)}
+        dados={estabelecimentoAdicional}
+        onSave={handleUpdateEstabelecimentoAdicional}
+      />
 
       <ModalApagarConta
         isOpen={isModalDeleteOpen}

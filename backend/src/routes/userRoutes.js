@@ -26,7 +26,9 @@ router.delete("/deletarEstabelecimento", autenticarToken, estabelecimentoControl
 router.get("/estabelecimentoLogadoDadosIniciais", autenticarToken, estabelecimentoController.getEstabelecimentoLogadoDadosIniciais)
 router.post("/completarDados", autenticarToken, estabelecimentoController.completarDados)
 router.patch("/alterarStatus", autenticarToken, estabelecimentoController.alterarStatus)
-router.get("/estabelecimentoDadosCompletos/:id_estabelecimento", estabelecimentoController.getEstabelecimentoDadosCompletos)
+router.get("/estabelecimentoLogadoDadosCompletos", autenticarToken, estabelecimentoController.getEstabelecimentoDadosCompletos)
+router.patch("/editarEstabelecimentoEndereco", autenticarToken, estabelecimentoController.editarEstabelecimentoEndereco)
+router.patch("/editarEstabelecimentoAdicional", autenticarToken, estabelecimentoController.editarEstabelecimentoAdicional)
 
 //Cardapio
 router.post("/cadastrarCardapio", autenticarToken, cardapioController.criarCardapio)
@@ -62,4 +64,5 @@ router.get("/home/listar/:tipo", autenticarToken, homeRestaurantesController.lis
 //Mesa
 router.post("/mesa/cadastrar", autenticarToken, mesaController.criar)
 router.get("/mesa/listar/:id", autenticarToken, mesaController.listar)
+
 module.exports = router;

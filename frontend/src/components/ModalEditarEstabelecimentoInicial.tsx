@@ -18,7 +18,6 @@ type Props = {
     cnpj: string;
     telefone_responsavel: string;
     email_responsavel: string;
-    senha: string;
   }) => void;
 };
 
@@ -34,8 +33,7 @@ export default function ModalEditarEstabelecimento({
     cpf_responsavel: "",
     cnpj: "",
     telefone_responsavel: "",
-    email_responsavel: "",
-    senha: "",
+    email_responsavel: ""
   });
 
   // Sempre que abrir o modal, preencher com os dados atuais
@@ -47,8 +45,7 @@ export default function ModalEditarEstabelecimento({
         cpf_responsavel: estabelecimento.cpf_responsavel,
         cnpj: estabelecimento.cnpj,
         telefone_responsavel: estabelecimento.telefone_responsavel,
-        email_responsavel: estabelecimento.email_responsavel,
-        senha: "",
+        email_responsavel: estabelecimento.email_responsavel
       });
     }
   }, [estabelecimento, isOpen]);
@@ -137,18 +134,6 @@ export default function ModalEditarEstabelecimento({
               value={formData.email_responsavel}
               onChange={handleChange}
               placeholder="Email"
-              className="w-full p-2 border rounded"
-            />
-          </div>
-
-          <div>
-            <p>Senha:</p>
-            <input
-              type="password"
-              name="senha"
-              value={formData.senha}
-              onChange={handleChange}
-              placeholder="Nova Senha"
               className="w-full p-2 border rounded"
             />
           </div>

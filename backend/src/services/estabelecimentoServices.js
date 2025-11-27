@@ -1,8 +1,10 @@
 const pool = require('../config/db');
 const Estabelecimento = require('../models/Estabelecimento');
+const EstabelecimentoEndereco = require('../models/EstabelecimentoEndereco');
+const EstabelecimentoAdicional = require('../models/EstabelecimentoAdicional');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const cloudinary = require('../config/cloudinary')
+const cloudinary = require('../config/cloudinary');
 
 
 async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_responsavel,cnpj,telefone_responsavel,email_responsavel,senha }) {
@@ -62,20 +64,15 @@ async function criarEstabelecimento({ nome_restaurante,nome_responsavel,cpf_resp
   return new Estabelecimento(res.rows[0]);
 }
 
-async function editarEstabelecimento(id, { nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, senha }) {
-  
-  let senhaCriptografada = senha;
-  if (senha) {
-    senhaCriptografada = await bcrypt.hash(senha, 10);
-  }
+async function editarEstabelecimento(id, { nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel }) {
 
   const updateQuery = `
     UPDATE estabelecimentos
-    SET nome_restaurante = $1, nome_responsavel = $2, cpf_responsavel = $3, cnpj = $4 , telefone_responsavel = $5, email_responsavel = $6, senha = $7
-    WHERE id_estabelecimento = $8
+    SET nome_restaurante = $1, nome_responsavel = $2, cpf_responsavel = $3, cnpj = $4 , telefone_responsavel = $5, email_responsavel = $6
+    WHERE id_estabelecimento = $7
     RETURNING *;
   `;
-  const values = [nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, senhaCriptografada, id];
+  const values = [nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, id];
 
   const res = await pool.query(updateQuery, values);
 
@@ -191,9 +188,7 @@ let novoStatus;
 
 async function getEstabelecimentoDadosCompletos(id) {
   const query = `
-    SELECT nome_restaurante, nome_responsavel, cpf_responsavel, cnpj, telefone_responsavel, email_responsavel, dados_completos, status, 
-    endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_rua, endereco_num, logo, telefone_restaurante,
-    especialidade, descricao_restaurante, meios_pagamento, tipos_servico
+    SELECT endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_rua, endereco_num, telefone_restaurante, especialidade, descricao_restaurante, meios_pagamento, tipos_servico
     FROM estabelecimentos
     WHERE id_estabelecimento = $1
   `;
@@ -204,9 +199,72 @@ async function getEstabelecimentoDadosCompletos(id) {
   return result.rows[0];
 }
 
+async function editarEstabelecimentoEndereco(id,{ endereco_cep, endereco_estado, endereco_cidade, endereco_bairro, endereco_rua, endereco_num }) {
+
+  const updateQuery = `
+    UPDATE estabelecimentos
+    SET endereco_cep = $1,
+        endereco_estado = $2,
+        endereco_cidade = $3,
+        endereco_bairro = $4,
+        endereco_rua = $5,
+        endereco_num = $6
+    WHERE id_estabelecimento = $7
+    RETURNING *;
+  `;
+
+  const values = [
+    endereco_cep,
+    endereco_estado,
+    endereco_cidade,
+    endereco_bairro,
+    endereco_rua,
+    endereco_num,
+    id
+  ];
+
+  const res = await pool.query(updateQuery, values);
+
+  if (res.rows.length === 0) {
+    throw new Error("Estabelecimento não encontrado");
+  }
+
+  return new EstabelecimentoEndereco(res.rows[0]);
+}
+async function editarEstabelecimentoAdicional(id,{telefone_restaurante,especialidade,descricao_restaurante,meios_pagamento,tipos_servico}) {
+
+  const updateQuery = `
+    UPDATE estabelecimentos
+    SET telefone_restaurante = $1,
+        especialidade = $2,
+        descricao_restaurante = $3,
+        meios_pagamento = $4,
+        tipos_servico = $5
+    WHERE id_estabelecimento = $6
+    RETURNING *;
+  `;
+
+  const values = [
+    telefone_restaurante,
+    especialidade,
+    descricao_restaurante,
+    meios_pagamento,
+    tipos_servico,
+    id
+  ];
+
+  const res = await pool.query(updateQuery, values);
+
+  if (res.rows.length === 0) {
+    throw new Error("Estabelecimento não encontrado");
+  }
+
+  return new EstabelecimentoAdicional(res.rows[0]);
+}
+
 
 
 module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, 
   loginEstabelecimento, getEstabelecimentoLogadoDadosIniciais, completarDados, alterarStatus, 
-  getEstabelecimentoDadosCompletos
+  getEstabelecimentoDadosCompletos, editarEstabelecimentoEndereco, editarEstabelecimentoAdicional
 }
