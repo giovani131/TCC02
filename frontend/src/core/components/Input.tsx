@@ -3,6 +3,7 @@ import { UseFormRegisterReturn } from "react-hook-form";
 
 interface InputProps {
   label: string;
+  onChange?: (value: string) => void;
   icon?: React.ReactNode;
   placeholder?: string;
   type?: string;
@@ -20,7 +21,8 @@ export function Input({
   register,
   isLoading = false,
   value,
-  disabled
+  disabled,
+  onChange
 }: InputProps) {
   return (
     <div className="flex flex-col p-2">
@@ -40,6 +42,7 @@ export function Input({
               {...register}
               value={value}
               disabled={disabled}
+              onChange={(e) => onChange?.(e.target.value)}
               className="flex-1 bg-white text-black font-semibold border border-black/35 rounded-[8px] p-2 placeholder:text-black/50 placeholder:text-[14px] focus:border-purple-500 focus:outline-none"
             />
           </div>

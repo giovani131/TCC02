@@ -9,6 +9,9 @@ const mapaController = require("../controllers/mapaController")
 const areaController = require("../controllers/areaController")
 const homeRestaurantesController = require("../controllers/homeRestaurantesController")
 const mesaController = require("../controllers/mesaController")
+const reservaController = require("../controllers/reservaController")
+const dayController = require("../controllers/dayController")
+
 const autenticarToken = require("../middleware/autenticarToken")
 
 //Usuario
@@ -27,6 +30,7 @@ router.get("/estabelecimentoLogadoDadosIniciais", autenticarToken, estabelecimen
 router.post("/completarDados", autenticarToken, estabelecimentoController.completarDados)
 router.patch("/alterarStatus", autenticarToken, estabelecimentoController.alterarStatus)
 router.get("/estabelecimentoDadosCompletos/:id_estabelecimento", estabelecimentoController.getEstabelecimentoDadosCompletos)
+router.get("/estabelecimento/procurar/:nome", estabelecimentoController.procurarEstabelecimentosPorNome)
 
 //Cardapio
 router.post("/cadastrarCardapio", autenticarToken, cardapioController.criarCardapio)
@@ -61,5 +65,15 @@ router.get("/home/listar/:tipo", autenticarToken, homeRestaurantesController.lis
 
 //Mesa
 router.post("/mesa/cadastrar", autenticarToken, mesaController.criar)
-router.get("/mesa/listar/:id", autenticarToken, mesaController.listar)
+router.get("/mesa/listar/:id/:tipo", autenticarToken, mesaController.listar)
+
+//Reserva
+router.post("/reserva/processo", autenticarToken, reservaController.gerarProcesso)
+router.get("/reserva/processo/:id", reservaController.getProcess)
+router.get("/reserva/request/:status/:tipo", autenticarToken, reservaController.listReservas)
+router.post("/reserva/reserva-mesa", autenticarToken, reservaController.reserva_mesa)
+//Day
+router.post("/day", autenticarToken, dayController.criarDia)
+router.get("/day", autenticarToken, dayController.listarDia)
+
 module.exports = router;

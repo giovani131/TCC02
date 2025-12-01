@@ -189,5 +189,16 @@ async function getEstabelecimentoDadosCompletos(req, res) {
   }
 }
 
-module.exports = {cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento,
-   getEstabelecimentoLogadoDadosIniciais, completarDados, alterarStatus, getEstabelecimentoDadosCompletos}
+async function procurarEstabelecimentosPorNome(req, res)
+{
+  try{
+    const { nome } = req.params
+    const estabelecimentos = await estabelecimentoServices.procurarEstabelecimentoPeloNome(nome)
+    res.status(200).json(estabelecimentos)
+  }catch(err){
+    res.status(400).json({ message: err.message })
+  }
+}
+
+module.exports = { cadastrarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, loginEstabelecimento,
+   getEstabelecimentoLogadoDadosIniciais, procurarEstabelecimentosPorNome, completarDados, alterarStatus, getEstabelecimentoDadosCompletos }

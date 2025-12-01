@@ -27,9 +27,9 @@ export async function createChair(data: IMesaRequest): Promise<IResponseApi>{
     }
 }
 
-export async function listar(id: string) : Promise<IMesaDTO[]>{
+export async function listar(id: string, tipo: number) : Promise<IMesaDTO[]>{
     const token = localStorage.getItem("token")
-    const res = await fetch(`http://localhost:5500/api/mesa/listar/${id}`, {
+    const res = await fetch(`http://localhost:5500/api/mesa/listar/${id}/${tipo}`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",

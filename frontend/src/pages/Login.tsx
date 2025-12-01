@@ -3,10 +3,11 @@ import { FC, useState } from "react";
 import { useRouter } from "next/navigation";
 import IconLogin from "../components/IconLogin";
 import { div } from "framer-motion/client";
+import { MoonLoader } from "react-spinners";
 
 const Login: FC = () => {
   const [userType, setUserType] = useState<"cliente" | "restaurante">("cliente");
-  
+  const [isLoading, setIsLoading] = useState(false)
   //INTEGRACAO
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -31,6 +32,7 @@ const Login: FC = () => {
     const redirectRoute = userType === "cliente" ? "/Home" : "/HomeEstabelecimento";
 
     try {
+      setIsLoading(true)
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,6 +53,8 @@ const Login: FC = () => {
     } catch (error) {
       console.error("Erro no login:", error);
       alert("Erro de conexão com o servidor");
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -126,16 +130,26 @@ const Login: FC = () => {
           >
             Esqueci minha senha
           </Link>
-
           <button
             type="submit"
-            className="w-full bg-purple-500 text-white p-3 rounded-lg mt-4 
-                      transition-all duration-300 ease-out 
-                      hover:bg-purple-600 hover:shadow-lg hover:scale-105 
-                      active:scale-95"
+            disabled={isLoading}
+            className={`w-full flex justify-center items-center p-3 rounded-lg mt-4
+                        bg-purple-500 text-white font-medium
+                        transition-all duration-300 ease-out
+
+                        ${isLoading 
+                          ? "opacity-80 cursor-not-allowed" 
+                          : "hover:bg-purple-600 hover:shadow-lg hover:scale-105 active:scale-95"
+                        }
+            `}
           >
-            Entrar
+            {isLoading ? (
+              <MoonLoader size={22} color="#fff" />
+            ) : (
+              "Entrar"
+            )}
           </button>
+
 
 
           <p className="text-center text-sm mt-4">

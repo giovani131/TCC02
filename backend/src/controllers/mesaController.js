@@ -19,11 +19,12 @@ async function criar(req, res)
 async function listar(req, res)
 {
     try{
-        const { id } = req.params;
+        const { id, tipo } = req.params;
+        console.log(tipo)
         if(!id)
-            return res.status(400).json({ message: "ID é obrigatorio" })
+            return res.status(400).json({ message: "Id é obrigatorio" })
 
-        const mesas = await mesaServico.listarMesa(id)
+        const mesas = await mesaServico.listarMesa(id, tipo)
         res.status(200).json(mesas)
     }catch(err){
         res.status(400).json({message: err.message})

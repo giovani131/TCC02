@@ -1,5 +1,7 @@
+import { Input } from "@/core/components/Input";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import { Reserve } from "./Reserve";
 
 export default function RestauranteDetalhes() {
   
@@ -14,8 +16,6 @@ export default function RestauranteDetalhes() {
   const [sessoes, setSessoes] = useState<any[]>([]);
   const [sessaoAtiva, setSessaoAtiva] = useState<number | null>(null);
   const [itens, setItens] = useState<any[]>([]);
-
-  // PUXA OS DADOS DO RESTAURANTE
   useEffect(() => {
     if (!router.isReady || !id_estabelecimento) return;
     const fetchDados = async () => {
@@ -37,7 +37,6 @@ export default function RestauranteDetalhes() {
     fetchDados();
   }, [router.isReady, id_estabelecimento]);
 
-  // PUXA OS CARDAPIOS
   useEffect(() => {
     if (!router.isReady || !id_estabelecimento) return;
     console.log(id_estabelecimento)
@@ -60,8 +59,6 @@ export default function RestauranteDetalhes() {
 
     fetchCardapios();
   }, [router.isReady,id_estabelecimento]);
-
-  // PUXA AS SESSOES
   useEffect(() => {
     if (!cardapioSelecionado) return;
     const fetchSessoes = async () => {
@@ -90,7 +87,6 @@ export default function RestauranteDetalhes() {
     fetchSessoes();
   }, [cardapioSelecionado]);
 
-  // PUXA OS ITENS
   useEffect(() => {
     if (!sessaoAtiva) {
       setItens([]);
@@ -186,7 +182,6 @@ export default function RestauranteDetalhes() {
         { id: "informacoes", label: "Informações" },
         { id: "cardapio", label: "Cardápio" },
         { id: "horarios", label: "Horários" },
-        { id: "mesas", label: "Mesas" },
         { id: "reserva", label: "Reserva" },
         { id: "avaliacao", label: "Avaliações" }
       ].map((aba) => {
@@ -387,25 +382,6 @@ export default function RestauranteDetalhes() {
           </div>
         )}
 
-        {/* MESAS */}
-        {abaAtiva === "mesas" && (
-          <div id="panel-mesas" role="tabpanel" className="space-y-3">
-            <h2 className="text-lg font-semibold">Mesas</h2>
-            <p className="text-gray-600">Aqui serão mostradas as mesas disponíveis.</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {/* placeholders visuais */}
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-20 rounded-xl border border-gray-200 bg-gray-50 grid place-content-center text-gray-500"
-                >
-                  Mesa #{i + 1}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
          {abaAtiva === "avaliacao" && (
           <div id="panel-reserva" role="tabpanel" className="space-y-6">
             <h2 className="text-lg font-semibold">Avaliações</h2>
@@ -502,58 +478,7 @@ export default function RestauranteDetalhes() {
         )}
 
         {/* RESERVA */}
-        {abaAtiva === "reserva" && (
-          <div id="panel-reserva" role="tabpanel" className="space-y-6">
-            <h2 className="text-lg font-semibold">Reserva</h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Data</label>
-                <input
-                  type="date"
-                  className="border rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 outline-none"
-                />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Hora</label>
-                <input
-                  type="time"
-                  className="border rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 outline-none"
-                />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Quantidade de Pessoas</label>
-                <input
-                  type="number"
-                  min={1}
-                  placeholder="Ex.: 4"
-                  className="border rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 outline-none"
-                />
-              </div>
-              <div className="flex flex-col">
-                <label className="text-sm font-medium mb-1">Nome do Responsável</label>
-                <input
-                  type="text"
-                  placeholder="Seu nome"
-                  className="border rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 outline-none"
-                />
-              </div>
-              <div className="flex flex-col sm:col-span-2">
-                <label className="text-sm font-medium mb-1">Telefone do Responsável</label>
-                <input
-                  type="text"
-                  placeholder="(xx) xxxxx-xxxx"
-                  className="border rounded-xl p-2.5 focus:ring-2 focus:ring-purple-400 outline-none"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-center">
-              <button className="w-full sm:w-[40%] bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition">
-                Confirmar Reserva
-              </button>
-            </div>
-          </div>
+        {abaAtiva === "reserva" && ( <Reserve />
         )}
       </div>
     </section>

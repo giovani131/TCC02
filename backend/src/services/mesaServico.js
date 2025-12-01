@@ -64,9 +64,9 @@ async function atualizarMesa({ id_mesa, codigo_mesa, status, capacidade_minima, 
     return new Mesa(updateResponse.rows[0])
 }
 
-async function listarMesa(id_area){
-    const query = `SELECT * FROM Mesa m where m.area_id = $1`
-    const response = await pool.query(query, [id_area])
+async function listarMesa(id_area, tipo){
+    const query = `SELECT * FROM Mesa m where m.area_id = $1 and m.tipo = $2`
+    const response = await pool.query(query, [id_area, tipo])
 
     return response.rows.map((item) => new MesaDTO(item))
 }
@@ -77,4 +77,5 @@ async function pegarPorId(id_mesa){
 
     return new MesaDTO(response[0])
 }
+
 module.exports = { criarMesa, atualizarMesa, listarMesa, pegarPorId }

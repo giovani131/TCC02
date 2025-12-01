@@ -7,6 +7,8 @@ import Horarios from "@/components/Horarios";
 import ModalApagarConta from "@/components/ModelApagarConta";
 import ModalEditarEstabelecimento from "@/components/ModalEditarEstabelecimento";
 import { Areas } from "../components/areas/Areas";
+import { ReservasPendentes } from "@/components/ReservasPendentes";
+import { ReservasAceitas } from "@/components/ReservasAceitas";
 
 type Estabelecimento = {
   nome_restaurante: string;
@@ -327,10 +329,10 @@ export default function HomeEstabelecimento() {
               className="h-full"
             >
               {activeTab === "reservasPendentes" && (
-                <p className="text-gray-600">📋 Aqui ficam as reservas pendentes...</p>
+                <p className="text-gray-600"><ReservasPendentes /></p>
               )}
               {activeTab === "reservasAceitas" && (
-                <p className="text-gray-600">✅ Aqui ficam as reservas aceitas...</p>
+                <p className="text-gray-600"><ReservasAceitas /></p>
               )}
               {activeTab === "cardapio" && <Cardapio/>}
               {activeTab === "horarios" && <Horarios/>}

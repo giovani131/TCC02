@@ -41,7 +41,7 @@ export function ModalCriarArea({close} : ModalCriarArea)
     return(
         <>
             <ModalEscructure 
-                content={
+                children={
                     <div className="bg-white/50 min-w-[50%] min-h-[50%] rounded-3xl p-3 border-[2px] border-white/30">
                         <div className="flex flex-row justify-between p-2">
                             <span className="text-black text-[20px] font-bold">Criar Área</span>

@@ -11,4 +11,13 @@ class Estabelecimento {
     }
 }
 
-module.exports = Estabelecimento;
+class EstabelecimentoDTO{
+    constructor({id_estabelecimento, nome_restaurante, logo})
+    {
+        this.id_estabelecimento = id_estabelecimento
+        this.nome_restaurante = nome_restaurante
+        this.logo = logo
+    }
+}
+
+module.exports = {Estabelecimento, EstabelecimentoDTO};

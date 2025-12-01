@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-const Estabelecimento = require('../models/Estabelecimento');
+const {Estabelecimento, EstabelecimentoDTO} = require('../models/Estabelecimento');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cloudinary = require('../config/cloudinary')
@@ -204,9 +204,24 @@ async function getEstabelecimentoDadosCompletos(id) {
   return result.rows[0];
 }
 
+async function procurarEstabelecimentoPeloNome(nome){
+  const query = `
+    SELECT * 
+    FROM estabelecimentos e 
+    WHERE e.nome_restaurante ILIKE $1;
+  `;
+
+  const values = [`%${nome}%`];
+  const result = await pool.query(query, values);
+
+  if(result.rows.length === 0) return [];
+  return result.rows.map((item) => new EstabelecimentoDTO(item))
+}
+
+
 
 
 module.exports = {criarEstabelecimento, editarEstabelecimento, deletarEstabelecimento, 
   loginEstabelecimento, getEstabelecimentoLogadoDadosIniciais, completarDados, alterarStatus, 
-  getEstabelecimentoDadosCompletos
+  getEstabelecimentoDadosCompletos, procurarEstabelecimentoPeloNome
 }
